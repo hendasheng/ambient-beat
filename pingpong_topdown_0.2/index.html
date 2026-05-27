@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PingPong Topdown v0.2</title>
+  <script src="https://cdn.jsdelivr.net/npm/tone@15.1.22/build/Tone.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="stage" aria-label="PingPong Topdown v0.2">
+    <canvas id="rallyCanvas"></canvas>
+
+    <aside class="hud" aria-label="Rally state">
+      <div>
+        <span class="label">State</span>
+        <strong id="stateLabel">strike</strong>
+      </div>
+      <div>
+        <span class="label">Shot</span>
+        <strong id="shotLabel">drive</strong>
+      </div>
+      <div>
+        <span class="label">Power</span>
+        <strong id="powerLabel">0.72</strong>
+      </div>
+      <div>
+        <span class="label">Beat</span>
+        <strong id="beatLabel">1</strong>
+      </div>
+    </aside>
+
+    <aside class="rhythm-panel" aria-label="Metronome controls">
+      <div class="rhythm-row">
+        <label for="bpmInput">
+          <span class="label">BPM</span>
+          <input id="bpmInput" type="number" min="40" max="240" step="1" value="68" inputmode="numeric" />
+        </label>
+        <label for="meterSelect">
+          <span class="label">Meter</span>
+          <select id="meterSelect">
+            <option value="4/4" selected>4/4</option>
+            <option value="3/4">3/4</option>
+            <option value="2/4">2/4</option>
+            <option value="6/8">6/8</option>
+          </select>
+        </label>
+        <label for="subdivisionSelect">
+          <span class="label">Rhythm</span>
+          <select id="subdivisionSelect">
+            <option value="auto" selected>Auto</option>
+            <option value="eighth">1/8</option>
+            <option value="triplet">1/8T</option>
+            <option value="sixteenth">1/16</option>
+          </select>
+        </label>
+        <label for="countInSelect">
+          <span class="label">Count In</span>
+          <select id="countInSelect">
+            <option value="0" selected>None</option>
+            <option value="1">1 bar</option>
+            <option value="2">2 bars</option>
+          </select>
+        </label>
+        <label for="clickVolumeInput" class="wide-control">
+          <span class="label">Click Vol</span>
+          <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="78" />
+        </label>
+        <div class="transport-controls wide-control">
+          <button id="playPauseButton" type="button">Start</button>
+          <button id="resetButton" type="button">Reset</button>
+        </div>
+      </div>
+      <div class="beat-strip" id="beatStrip" aria-hidden="true"></div>
+      <div class="rhythm-readout">
+        <strong id="tempoLabel">68 BPM</strong>
+        <span id="meterLabel">4/4 · hit 1, table 1.5</span>
+      </div>
+    </aside>
+
+    <aside class="sound-panel" aria-label="Temporary bounce sound presets">
+      <div class="sound-panel-head">
+        <span class="label">Bounce Tone</span>
+        <strong id="bouncePresetLabel">Deep Wood A</strong>
+      </div>
+      <div class="preset-grid" id="bouncePresetGrid">
+        <button type="button" data-bounce-preset="0" class="active">01</button>
+        <button type="button" data-bounce-preset="1">02</button>
+        <button type="button" data-bounce-preset="2">03</button>
+        <button type="button" data-bounce-preset="3">04</button>
+        <button type="button" data-bounce-preset="4">05</button>
+        <button type="button" data-bounce-preset="5">06</button>
+        <button type="button" data-bounce-preset="6">07</button>
+        <button type="button" data-bounce-preset="7">08</button>
+        <button type="button" data-bounce-preset="8">09</button>
+        <button type="button" data-bounce-preset="9">10</button>
+      </div>
+    </aside>
+
+    <aside class="sound-panel hit-panel" aria-label="Temporary hit sound presets">
+      <div class="sound-panel-head">
+        <span class="label">Hit Tone</span>
+        <strong id="hitPresetLabel">Hard Face B</strong>
+      </div>
+      <div class="preset-grid" id="hitPresetGrid">
+        <button type="button" data-hit-preset="0">01</button>
+        <button type="button" data-hit-preset="1" class="active">02</button>
+        <button type="button" data-hit-preset="2">03</button>
+        <button type="button" data-hit-preset="3">04</button>
+        <button type="button" data-hit-preset="4">05</button>
+        <button type="button" data-hit-preset="5">06</button>
+        <button type="button" data-hit-preset="6">07</button>
+        <button type="button" data-hit-preset="7">08</button>
+        <button type="button" data-hit-preset="8">09</button>
+        <button type="button" data-hit-preset="9">10</button>
+      </div>
+    </aside>
+  </main>
+
+  <script src="sketch.js"></script>
+</body>
+</html>

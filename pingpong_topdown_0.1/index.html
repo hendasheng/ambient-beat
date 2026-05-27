@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PingPong Topdown v0.1</title>
+  <script src="https://cdn.jsdelivr.net/npm/tone@15.1.22/build/Tone.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="stage" aria-label="PingPong Topdown v0.1">
+    <canvas id="rallyCanvas"></canvas>
+
+    <aside class="hud" aria-label="Rally state">
+      <div>
+        <span class="label">State</span>
+        <strong id="stateLabel">strike</strong>
+      </div>
+      <div>
+        <span class="label">Shot</span>
+        <strong id="shotLabel">drive</strong>
+      </div>
+      <div>
+        <span class="label">Power</span>
+        <strong id="powerLabel">0.72</strong>
+      </div>
+    </aside>
+
+    <aside class="sound-panel" aria-label="Temporary bounce sound presets">
+      <div class="sound-panel-head">
+        <span class="label">Bounce Tone</span>
+        <strong id="bouncePresetLabel">Round Board</strong>
+      </div>
+      <div class="preset-grid" id="bouncePresetGrid">
+        <button type="button" data-bounce-preset="0">01</button>
+        <button type="button" data-bounce-preset="1">02</button>
+        <button type="button" data-bounce-preset="2">03</button>
+        <button type="button" data-bounce-preset="3">04</button>
+        <button type="button" data-bounce-preset="4">05</button>
+        <button type="button" data-bounce-preset="5">06</button>
+        <button type="button" data-bounce-preset="6" class="active">07</button>
+        <button type="button" data-bounce-preset="7">08</button>
+        <button type="button" data-bounce-preset="8">09</button>
+        <button type="button" data-bounce-preset="9">10</button>
+      </div>
+    </aside>
+
+    <aside class="sound-panel hit-panel" aria-label="Temporary hit sound presets">
+      <div class="sound-panel-head">
+        <span class="label">Hit Tone</span>
+        <strong id="hitPresetLabel">Hard Face A</strong>
+      </div>
+      <div class="preset-grid" id="hitPresetGrid">
+        <button type="button" data-hit-preset="0" class="active">01</button>
+        <button type="button" data-hit-preset="1">02</button>
+        <button type="button" data-hit-preset="2">03</button>
+        <button type="button" data-hit-preset="3">04</button>
+        <button type="button" data-hit-preset="4">05</button>
+        <button type="button" data-hit-preset="5">06</button>
+        <button type="button" data-hit-preset="6">07</button>
+        <button type="button" data-hit-preset="7">08</button>
+        <button type="button" data-hit-preset="8">09</button>
+        <button type="button" data-hit-preset="9">10</button>
+      </div>
+    </aside>
+  </main>
+
+  <script src="sketch.js"></script>
+</body>
+</html>
