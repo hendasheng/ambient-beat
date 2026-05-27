@@ -2,11 +2,18 @@
 
 English | [中文](./README.md)
 
-Ambient Beat is an open-source metronome experiment built with Web Audio and real-time visuals. It uses physical scenes, material collisions, and spatial motion to generate rhythm, turning the beat from cold timing into an atmosphere system that can be watched, heard, and adjusted.
+Ambient Beat is an open-source metronome experiment built with Web Audio and real-time visuals.
+
+It uses physical scenes, material collisions, and spatial motion to generate rhythm, turning the beat from cold timing into an atmosphere system that can be watched, heard, and adjusted.
 
 GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
 The root homepage is the project index. Each project keeps its own versions, documents, and evolution history under `projects/`.
+
+## Contributing
+
+- Contribution workflow for collaborators: [CONTRIBUTING.md](./CONTRIBUTING.md)
+- Repository guidance for AI / coding agents: [AGENTS.md](./AGENTS.md)
 
 ## Projects
 
@@ -19,6 +26,8 @@ The root homepage is the project index. Each project keeps its own versions, doc
 ├── index.html
 ├── README.md
 ├── README_EN.md
+├── CONTRIBUTING.md
+├── AGENTS.md
 └── projects/
     └── pingpong_topdown/
         ├── index.html

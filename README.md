@@ -2,11 +2,18 @@
 
 [English](./README_EN.md) | 中文
 
-氛围节拍是一个基于 Web Audio 与实时视觉的开源节拍器实验。它用不同的物理场景、材质碰撞和空间运动来生成节奏，让节拍不只是冷冰冰的计时，而是一种可以观看、聆听和调节的氛围系统。
+氛围节拍是一个基于 Web Audio 与实时视觉的开源节拍器实验。
+
+它用不同的物理场景、材质碰撞和空间运动来生成节奏，让节拍不只是冷冰冰的计时，而是一种可以观看、聆听和调节的氛围系统。
 
 GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
 根目录首页是项目入口；每个具体项目在 `projects/` 下维护自己的版本、文档和演进记录。
+
+## 参与贡献
+
+- 给合作者看的提交流程：[CONTRIBUTING.md](./CONTRIBUTING.md)
+- 给 AI / 编码助手看的仓库提示：[AGENTS.md](./AGENTS.md)
 
 ## Projects
 
@@ -18,6 +25,9 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 .
 ├── index.html
 ├── README.md
+├── README_EN.md
+├── CONTRIBUTING.md
+├── AGENTS.md
 └── projects/
     └── pingpong_topdown/
         ├── index.html
