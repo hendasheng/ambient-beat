@@ -1,5 +1,7 @@
 # Ambient Beat
 
+[English](./README_EN.md) | 中文
+
 氛围节拍是一个基于 Web Audio 与实时视觉的开源节拍器实验。它用不同的物理场景、材质碰撞和空间运动来生成节奏，让节拍不只是冷冰冰的计时，而是一种可以观看、聆听和调节的氛围系统。
 
 GitHub Pages: https://hendasheng.github.io/ambient-beat/
