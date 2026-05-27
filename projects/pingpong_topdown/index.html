@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ambient Beat</title>
+  <title>PingPong Topdown</title>
   <style>
     :root {
       --bg: #eef1f0;
       --paper: rgba(250, 251, 249, 0.88);
       --ink: #171717;
-      --muted: #666a66;
+      --muted: #6a6a63;
       --line: rgba(23, 23, 23, 0.12);
       --accent: #256f58;
       --shadow: 0 18px 42px rgba(22, 30, 28, 0.13);
@@ -23,15 +22,31 @@
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 40px 20px;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
       color: var(--ink);
       background: linear-gradient(150deg, #f8faf8 0%, var(--bg) 56%, #dfe8e3 100%);
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      padding: 40px 20px;
     }
 
     main {
       width: min(980px, 100%);
       margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 22px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .back-link::before {
+      content: "<";
+      line-height: 1;
     }
 
     .hero {
@@ -49,25 +64,17 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(34px, 7vw, 64px);
+      font-size: clamp(32px, 6vw, 56px);
       line-height: 1;
       font-weight: 720;
     }
 
     .subtitle {
-      max-width: 760px;
       margin: 16px 0 0;
+      max-width: 760px;
       color: var(--muted);
       font-size: 16px;
       line-height: 1.72;
-    }
-
-    .subtitle-line {
-      display: block;
-    }
-
-    .subtitle-line + .subtitle-line {
-      margin-top: 10px;
     }
 
     .grid {
@@ -87,7 +94,7 @@
       box-shadow: var(--shadow);
     }
 
-    .status {
+    .version {
       display: inline-flex;
       justify-self: start;
       max-width: 100%;
@@ -129,9 +136,9 @@
       align-items: center;
       gap: 8px;
       color: var(--accent);
+      text-decoration: none;
       font-size: 14px;
       font-weight: 650;
-      text-decoration: none;
     }
 
     .link::after {
@@ -150,28 +157,41 @@
     }
   </style>
 </head>
-
 <body>
   <main>
+    <a class="back-link" href="../../index.html">Ambient Beat</a>
+
     <section class="hero">
-      <p class="eyebrow">Project Index</p>
-      <h1>Ambient Beat</h1>
-      <p class="subtitle">
-        <span class="subtitle-line">氛围节拍是一个基于 Web Audio 与实时视觉的开源节拍器实验。</span>
-        <span class="subtitle-line">它用不同的物理场景、材质碰撞和空间运动来生成节奏，让节拍不只是冷冰冰的计时，而是一种可以观看、聆听和调节的氛围系统。</span>
-      </p>
+      <p class="eyebrow">Project Versions</p>
+      <h1>PingPong Topdown</h1>
+      <p class="subtitle">俯视视角下的极简乒乓球回合轨迹视觉项目。当前版本在节拍器回合基础上重整 UI：底部节奏面板、迷你 beat、边缘 hover HUD / 音色面板和全屏快捷键。</p>
     </section>
 
-    <section class="grid" aria-label="Projects">
+    <section class="grid">
       <article class="card">
-        <span class="status">Active · v0.3</span>
-        <h2 class="project-name">PingPong Topdown</h2>
-        <p class="meta">Canvas2D | Tone.js | Rally Rhythm</p>
-        <p class="desc">俯视视角下的极简乒乓球回合轨迹视觉项目。当前版本包含节拍器回合、底部节奏面板、mini beat、hover HUD 和音色抽屉。</p>
-        <a class="link" href="./projects/pingpong_topdown/index.html">进入项目</a>
+        <span class="version">v0.3 Scoreboard UI</span>
+        <h2 class="project-name">pingpong_topdown_0.3</h2>
+        <p class="meta">Canvas2D | BPM | UI Layout</p>
+        <p class="desc">从 v0.2 复制出新版本，保留节拍器回合和声音逻辑；重做底部 Rhythm 面板、迷你 beat、hover HUD 与音色抽屉，并修正预备发球台外软投影。</p>
+        <a class="link" href="./pingpong_topdown_0.3/index.html">进入 v0.3</a>
+      </article>
+
+      <article class="card">
+        <span class="version">v0.2 Metronome Rally</span>
+        <h2 class="project-name">pingpong_topdown_0.2</h2>
+        <p class="meta">Canvas2D | BPM | Beat Grid</p>
+        <p class="desc">节拍器版本：输入 BPM、拍号、Rhythm、Count In 和 Click Volume 后，用 Start/Pause 与 Reset 控制回合；预备拍会生成台外发球抛球动作并接到第一拍击球。</p>
+        <a class="link" href="./pingpong_topdown_0.2/index.html">进入 v0.2</a>
+      </article>
+
+      <article class="card">
+        <span class="version">v0.1 Rally State</span>
+        <h2 class="project-name">pingpong_topdown_0.1</h2>
+        <p class="meta">Canvas2D | Topdown Rally | State Machine</p>
+        <p class="desc">基础单窗口版本：球必须越过中线、落到对方半台、弹起后再被回击。轨迹线按单拍生成并淡出，球本体不使用拖尾。</p>
+        <a class="link" href="./pingpong_topdown_0.1/index.html">进入 v0.1</a>
       </article>
     </section>
   </main>
 </body>
-
 </html>
