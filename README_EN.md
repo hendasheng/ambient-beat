@@ -17,7 +17,7 @@ The root homepage is the project index. Each project keeps its own versions, doc
 
 ## Projects
 
-- [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.3.
+- [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.4.
 
 ## Structure
 
@@ -36,8 +36,36 @@ The root homepage is the project index. Each project keeps its own versions, doc
         ├── animation_state_spec.md
         ├── pingpong_topdown_0.1/
         ├── pingpong_topdown_0.2/
-        └── pingpong_topdown_0.3/
+        ├── pingpong_topdown_0.3/
+        └── pingpong_topdown_0.4/
 ```
+
+## Local Development And LAN Access
+
+This repository is a static site. The repository already includes `.vscode/settings.json`, so VS Code Live Server listens on the local network:
+
+```json
+{
+  "liveServer.settings.host": "0.0.0.0",
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.useLocalIp": true
+}
+```
+
+After starting `Go Live`, run this command in a Windows terminal:
+
+```powershell
+ipconfig
+```
+
+Find the IPv4 address of the active Wi-Fi adapter, such as `192.168.1.23`. Connect the computer and test device to the same local network, then visit:
+
+```text
+http://192.168.1.23:5500/
+http://192.168.1.23:5500/projects/pingpong_topdown/pingpong_topdown_0.4/
+```
+
+Do not use `localhost` or `127.0.0.1`; on a phone they point to the phone itself. If the site is still unreachable, allow VS Code / Live Server through the Windows private-network firewall or open TCP port `5500`.
 
 ## GitHub Pages
 

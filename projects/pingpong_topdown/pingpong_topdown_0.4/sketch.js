@@ -68,6 +68,7 @@ const world = {
   height: 0,
   dpr: 1,
   table: { x: 0, y: 0, w: 0, h: 0 },
+  tablePortrait: false,
   direction: 1,
   nextStart: { x: -0.43, y: 0.08 },
   shotIndex: 0,
@@ -431,6 +432,10 @@ function handleRhythmPointerDown(event) {
 }
 
 function handleRhythmPointerMove(event) {
+  if (event.pointerType && event.pointerType !== "mouse") {
+    return;
+  }
+
   const now = performance.now();
   if (now - lastRhythmPointerMove < 80) {
     return;
@@ -842,18 +847,38 @@ updateBouncePresetUI();
 updateHitPresetUI();
 
 function resize() {
-  world.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
   world.width = window.innerWidth;
   world.height = window.innerHeight;
+  const maxDpr = world.width <= 680 ? 3 : 2;
+  world.dpr = Math.max(1, Math.min(maxDpr, window.devicePixelRatio || 1));
+  const viewportHeight = window.visualViewport?.height || world.height;
   canvas.width = Math.round(world.width * world.dpr);
   canvas.height = Math.round(world.height * world.dpr);
   canvas.style.width = `${world.width}px`;
   canvas.style.height = `${world.height}px`;
   ctx.setTransform(world.dpr, 0, 0, world.dpr, 0, 0);
 
-  const lowerUiReserve = world.width <= 680 ? 194 : 124;
-  const tableAreaHeight = Math.max(260, world.height - lowerUiReserve);
+  const isPortraitMobile = world.width <= 680 && viewportHeight > world.width;
+  const lowerUiReserve = isPortraitMobile ? 132 : world.width <= 680 ? 194 : 124;
+  const tableAreaHeight = Math.max(isPortraitMobile ? 220 : 260, world.height - lowerUiReserve);
   const isFullscreen = Boolean(document.fullscreenElement);
+  world.tablePortrait = isPortraitMobile;
+  if (isPortraitMobile) {
+    const miniBeatReserve = 54;
+    const portraitMargin = 32;
+    const portraitOffsetY = 18;
+    const tableH = Math.min(viewportHeight * 0.68, world.width * 1.34, viewportHeight - miniBeatReserve - portraitMargin * 2);
+    const tableW = tableH * 0.56;
+    world.table = {
+      x: (world.width - tableW) / 2,
+      y: (viewportHeight - tableH - miniBeatReserve) / 2 + portraitOffsetY,
+      w: tableW,
+      h: tableH
+    };
+    updateMiniBeatPosition();
+    return;
+  }
+
   const widthRatio = isFullscreen ? 0.9 : 0.82;
   const heightWidthFactor = isFullscreen ? 1.62 : 1.42;
   const maxTableW = isFullscreen ? 1480 : 1040;
@@ -874,9 +899,10 @@ function updateMiniBeatPosition() {
     return;
   }
 
-  const shadowBottom = world.table.y + world.table.h + 22;
-  const gap = world.width <= 680 ? 22 : 30;
-  const fallback = world.height - (world.width <= 680 ? 66 : 76);
+  const shadowBottom = world.table.y + world.table.h + (world.tablePortrait ? 0 : 22);
+  const gap = world.tablePortrait ? 16 : world.width <= 680 ? 22 : 30;
+  const viewportHeight = window.visualViewport?.height || world.height;
+  const fallback = viewportHeight - (world.width <= 680 ? 66 : 76);
   const top = Math.min(shadowBottom + gap, fallback);
   const miniWidth = Math.round(clamp(world.table.w * 0.25, 132, 260));
   const miniBeatRoot = miniBeatStrip.parentElement;
@@ -910,6 +936,13 @@ function bounceHeightProgress(t, shot) {
 
 function point(x, y) {
   const table = world.table;
+  if (world.tablePortrait) {
+    return {
+      x: table.x + (y + 0.5) * table.w,
+      y: table.y + (x + 0.5) * table.h
+    };
+  }
+
   return {
     x: table.x + (x + 0.5) * table.w,
     y: table.y + (y + 0.5) * table.h
@@ -917,7 +950,7 @@ function point(x, y) {
 }
 
 function getBallRadius() {
-  return world.table.w * ballRadiusRatio;
+  return (world.tablePortrait ? world.table.h : world.table.w) * ballRadiusRatio;
 }
 
 function curvePoint(a, b, c, t) {
@@ -1274,37 +1307,52 @@ function drawTable() {
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, world.width, world.height);
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-  ctx.beginPath();
-  ctx.roundRect(table.x + 10, table.y + 14, table.w - 20, table.h + 8, 6);
-  ctx.fill();
-
   ctx.fillStyle = "#4A71CB";
   ctx.fillRect(table.x, table.y, table.w, table.h);
 
   ctx.strokeStyle = "rgba(0, 0, 0, 0.35)";
-  ctx.lineWidth = 9.3;
-  ctx.strokeRect(table.x + 4.65, table.y + 4.65, table.w - 9.3, table.h - 9.3);
+  const edgeWidth = world.tablePortrait ? 5.6 : 9.3;
+  ctx.lineWidth = edgeWidth;
+  ctx.strokeRect(table.x + edgeWidth / 2, table.y + edgeWidth / 2, table.w - edgeWidth, table.h - edgeWidth);
 
   ctx.strokeStyle = "rgba(255, 255, 255, 0.88)";
   ctx.lineWidth = 2.1;
   ctx.beginPath();
-  ctx.moveTo(table.x, table.y + table.h / 2);
-  ctx.lineTo(table.x + table.w, table.y + table.h / 2);
+  if (world.tablePortrait) {
+    ctx.moveTo(table.x + table.w / 2, table.y);
+    ctx.lineTo(table.x + table.w / 2, table.y + table.h);
+  } else {
+    ctx.moveTo(table.x, table.y + table.h / 2);
+    ctx.lineTo(table.x + table.w, table.y + table.h / 2);
+  }
   ctx.stroke();
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
-  ctx.fillRect(table.x + table.w / 2 - 4.5, table.y - 8, 9, table.h + 16);
+  if (world.tablePortrait) {
+    ctx.fillRect(table.x - 8, table.y + table.h / 2 - 2.8, table.w + 16, 5.6);
+  } else {
+    ctx.fillRect(table.x + table.w / 2 - 4.5, table.y - 8, 9, table.h + 16);
+  }
 
   ctx.strokeStyle = "rgba(0, 0, 0, 0.35)";
-  ctx.lineWidth = 1.9;
+  ctx.lineWidth = world.tablePortrait ? 1.25 : 1.9;
   ctx.beginPath();
-  ctx.moveTo(table.x + table.w / 2 - 2.8, table.y - 8);
-  ctx.lineTo(table.x + table.w / 2 - 2.8, table.y + table.h + 8);
+  if (world.tablePortrait) {
+    ctx.moveTo(table.x - 8, table.y + table.h / 2 - 1.7);
+    ctx.lineTo(table.x + table.w + 8, table.y + table.h / 2 - 1.7);
+  } else {
+    ctx.moveTo(table.x + table.w / 2 - 2.8, table.y - 8);
+    ctx.lineTo(table.x + table.w / 2 - 2.8, table.y + table.h + 8);
+  }
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(table.x + table.w / 2 + 2.8, table.y - 8);
-  ctx.lineTo(table.x + table.w / 2 + 2.8, table.y + table.h + 8);
+  if (world.tablePortrait) {
+    ctx.moveTo(table.x - 8, table.y + table.h / 2 + 1.7);
+    ctx.lineTo(table.x + table.w + 8, table.y + table.h / 2 + 1.7);
+  } else {
+    ctx.moveTo(table.x + table.w / 2 + 2.8, table.y - 8);
+    ctx.lineTo(table.x + table.w / 2 + 2.8, table.y + table.h + 8);
+  }
   ctx.stroke();
   ctx.restore();
 }
@@ -1668,6 +1716,7 @@ function draw(timestamp) {
 }
 
 window.addEventListener("resize", resize);
+window.visualViewport?.addEventListener("resize", resize);
 document.addEventListener("fullscreenchange", resize);
 window.addEventListener("pointerdown", unlockAudio, { once: true });
 window.addEventListener("pointerdown", handleRhythmPointerDown);

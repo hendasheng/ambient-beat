@@ -17,7 +17,7 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
 ## Projects
 
-- [PingPong Topdown](./projects/pingpong_topdown/)：俯视视角下的极简乒乓球回合轨迹视觉项目，当前主版本为 v0.3。
+- [PingPong Topdown](./projects/pingpong_topdown/)：俯视视角下的极简乒乓球回合轨迹视觉项目，当前主版本为 v0.4。
 
 ## Structure
 
@@ -36,8 +36,36 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
         ├── animation_state_spec.md
         ├── pingpong_topdown_0.1/
         ├── pingpong_topdown_0.2/
-        └── pingpong_topdown_0.3/
+        ├── pingpong_topdown_0.3/
+        └── pingpong_topdown_0.4/
 ```
+
+## 本地开发与局域网访问
+
+这个仓库是纯静态站点。仓库已经提供 `.vscode/settings.json`，VS Code Live Server 会监听局域网地址：
+
+```json
+{
+  "liveServer.settings.host": "0.0.0.0",
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.useLocalIp": true
+}
+```
+
+启动 `Go Live` 后，在 Windows 终端运行：
+
+```powershell
+ipconfig
+```
+
+找到当前 Wi-Fi 网卡的 IPv4 地址，例如 `192.168.1.23`。确保电脑和测试设备连接同一个局域网，然后访问：
+
+```text
+http://192.168.1.23:5500/
+http://192.168.1.23:5500/projects/pingpong_topdown/pingpong_topdown_0.4/
+```
+
+不要使用 `localhost` 或 `127.0.0.1`，它们在手机上指向手机自身。如果仍然无法访问，请允许 VS Code / Live Server 通过 Windows 专用网络防火墙，或放行 TCP 端口 `5500`。
 
 ## GitHub Pages
 
