@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Particle Pulse v0.2</title>
+  <script src="https://cdn.jsdelivr.net/npm/tone@15.1.22/build/Tone.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="stage" aria-label="Particle Pulse v0.2">
+    <canvas id="particleCanvas"></canvas>
+
+    <section class="controls" aria-label="Visual controls">
+      <div class="identity">
+        <a class="back-link" href="../index.html">Particle Pulse</a>
+        <h1>Particle Field</h1>
+      </div>
+
+      <div class="status">
+        <span>Visual Lab</span>
+        <span>GPU Curl</span>
+      </div>
+
+      <label>
+        <span>Speed</span>
+        <input id="speedInput" type="range" min="0" max="120" value="27" />
+        <output id="speedValue">0.54</output>
+      </label>
+
+      <label>
+        <span>Curl</span>
+        <input id="curlInput" type="range" min="5" max="40" value="6" />
+        <output id="curlValue">0.012</output>
+      </label>
+
+      <label>
+        <span>Life</span>
+        <input id="lifeInput" type="range" min="3" max="20" value="9" />
+        <output id="lifeValue">0.006</output>
+      </label>
+
+      <label>
+        <span>Size</span>
+        <input id="sizeInput" type="range" min="1800" max="4600" value="3000" step="50" />
+        <output id="sizeValue">3000</output>
+      </label>
+
+      <label>
+        <span>Azimuth</span>
+        <input id="lightAzimuthInput" type="range" min="-180" max="180" value="117" />
+        <output id="lightAzimuthValue">117</output>
+      </label>
+
+      <label>
+        <span>Height</span>
+        <input id="lightHeightInput" type="range" min="-40" max="80" value="45" />
+        <output id="lightHeightValue">45</output>
+      </label>
+
+      <label>
+        <span>Light</span>
+        <input id="lightPowerInput" type="range" min="0" max="200" value="100" />
+        <output id="lightPowerValue">1.00</output>
+      </label>
+
+      <label>
+        <span>Shadow</span>
+        <input id="shadowInput" type="range" min="0" max="8" value="2" step="0.1" />
+        <output id="shadowValue">2.0</output>
+      </label>
+
+      <div class="buttons">
+        <button id="resetButton" type="button">Reset Particles</button>
+      </div>
+    </section>
+
+    <aside class="rhythm-panel" aria-label="Metronome controls">
+      <div class="rhythm-primary">
+        <div class="control-group timing-group">
+          <span class="group-label">Tempo</span>
+          <div class="control-grid">
+            <label for="bpmInput">
+              <span class="label">BPM</span>
+              <input id="bpmInput" type="number" min="40" max="240" step="1" value="68" inputmode="numeric" />
+            </label>
+            <label for="meterSelect">
+              <span class="label">Meter</span>
+              <select id="meterSelect">
+                <option value="4/4" selected>4/4</option>
+                <option value="3/4">3/4</option>
+                <option value="2/4">2/4</option>
+                <option value="6/8">6/8</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group feel-group">
+          <span class="group-label">Rally Feel</span>
+          <div class="control-grid">
+            <label for="subdivisionSelect">
+              <span class="label">Rhythm</span>
+              <select id="subdivisionSelect">
+                <option value="auto" selected>Auto</option>
+                <option value="eighth">1/8</option>
+                <option value="triplet">1/8T</option>
+                <option value="sixteenth">1/16</option>
+              </select>
+            </label>
+            <label for="countInSelect">
+              <span class="label">Count In</span>
+              <select id="countInSelect">
+                <option value="0" selected>None</option>
+                <option value="1">1 bar</option>
+                <option value="2">2 bars</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group beat-group">
+        <span class="group-label">Beat</span>
+        <div class="beat-strip" id="beatStrip" aria-hidden="true"></div>
+        <div class="rhythm-readout">
+          <strong id="tempoLabel">68 BPM</strong>
+          <span id="meterLabel">4/4 · Auto · hit 1, table 1.5</span>
+        </div>
+      </div>
+
+      <div class="transport-bar">
+        <label for="clickVolumeInput" class="volume-control">
+          <span class="label" id="clickVolumeLabel">Click 78%</span>
+          <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="78" />
+        </label>
+        <div class="transport-controls">
+          <button id="playPauseButton" type="button">Start</button>
+          <button id="rhythmResetButton" type="button">Reset</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="mini-beat" aria-hidden="true">
+      <div class="mini-beat-strip" id="miniBeatStrip"></div>
+      <div class="mini-beat-readout" id="miniBeatReadout">68 BPM · 4/4</div>
+    </div>
+  </main>
+
+  <script type="module" src="sketch.js"></script>
+</body>
+</html>

@@ -22,6 +22,20 @@ const lightPowerValue = document.getElementById("lightPowerValue");
 const shadowInput = document.getElementById("shadowInput");
 const shadowValue = document.getElementById("shadowValue");
 const resetButton = document.getElementById("resetButton");
+const bpmInput = document.getElementById("bpmInput");
+const meterSelect = document.getElementById("meterSelect");
+const subdivisionSelect = document.getElementById("subdivisionSelect");
+const countInSelect = document.getElementById("countInSelect");
+const clickVolumeInput = document.getElementById("clickVolumeInput");
+const clickVolumeLabel = document.getElementById("clickVolumeLabel");
+const playPauseButton = document.getElementById("playPauseButton");
+const rhythmResetButton = document.getElementById("rhythmResetButton");
+const beatStrip = document.getElementById("beatStrip");
+const miniBeatStrip = document.getElementById("miniBeatStrip");
+const miniBeatReadout = document.getElementById("miniBeatReadout");
+const tempoLabel = document.getElementById("tempoLabel");
+const meterLabel = document.getElementById("meterLabel");
+const rhythmPanel = document.querySelector(".rhythm-panel");
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
@@ -66,6 +80,39 @@ scene.add(light.target);
 
 let lastFrameTime = performance.now();
 let pointSizeBase = Number(sizeInput.value);
+let rhythmPanelHideTimer = 0;
+let lastRhythmPointerMove = 0;
+let rhythmPanelDismissed = false;
+let rhythmPulse = 0;
+let rhythmAccent = 0;
+
+const rhythm = {
+  bpm: 68,
+  meter: { numerator: 4, denominator: 4 },
+  subdivision: "auto",
+  countInBars: 0,
+  clickVolume: 0.78,
+  isPlaying: false,
+  useToneClock: false,
+  nextBeatTime: 0,
+  beatIndex: 0,
+  clockOrigin: 0,
+  countInBeatsRemaining: 0,
+};
+
+const rhythmAudio = {
+  ready: false,
+  master: null,
+  hitTone: null,
+  downbeatTone: null,
+};
+
+const subdivisionModes = {
+  auto: { label: "Auto", fraction: 0.5 },
+  eighth: { label: "1/8", fraction: 0.5 },
+  triplet: { label: "1/8T", fraction: 2 / 3 },
+  sixteenth: { label: "1/16", fraction: 0.25 },
+};
 
 let cameraTheta = 0;
 let cameraPhi = Math.PI * 0.5;
@@ -700,6 +747,229 @@ function updateVisualControls() {
   updatePointSize();
 }
 
+function parseMeter(value) {
+  const [numerator, denominator] = value.split("/").map((part) => Number(part));
+  return {
+    numerator: clamp(Number.isFinite(numerator) ? numerator : 4, 1, 12),
+    denominator: clamp(Number.isFinite(denominator) ? denominator : 4, 1, 16),
+  };
+}
+
+function getBeatSeconds() {
+  return 60 / rhythm.bpm;
+}
+
+function getSubdivisionMode() {
+  return subdivisionModes[rhythm.subdivision] || subdivisionModes.auto;
+}
+
+function setText(element, value) {
+  if (element) {
+    element.textContent = value;
+  }
+}
+
+function renderBeatDots(container, activeBeat, dotClass) {
+  if (!container) return;
+  container.style.setProperty("--beats", rhythm.meter.numerator);
+  if (container.dataset.beats !== String(rhythm.meter.numerator) || container.dataset.dotClass !== dotClass) {
+    container.replaceChildren();
+    for (let i = 1; i <= rhythm.meter.numerator; i += 1) {
+      container.appendChild(document.createElement("span"));
+    }
+    container.dataset.beats = String(rhythm.meter.numerator);
+    container.dataset.dotClass = dotClass;
+  }
+
+  Array.from(container.children).forEach((dot, index) => {
+    const beat = index + 1;
+    dot.className = `${dotClass}${beat === 1 ? " downbeat" : ""}${beat === activeBeat ? " active" : ""}`;
+  });
+}
+
+function updateRhythmLabels(activeBeat = 1, isCountIn = false) {
+  setText(tempoLabel, `${rhythm.bpm} BPM`);
+  const tableBeat = activeBeat + getSubdivisionMode().fraction;
+  const countInText = rhythm.countInBars > 0 ? ` · count ${rhythm.countInBars} bar` : "";
+  const beatLabel = isCountIn ? "count" : "hit";
+  setText(
+    meterLabel,
+    `${rhythm.meter.numerator}/${rhythm.meter.denominator} · ${getSubdivisionMode().label} · ${beatLabel} ${activeBeat}, table ${tableBeat.toFixed(2).replace(/0$/, "")}${countInText}`,
+  );
+  setText(miniBeatReadout, `${rhythm.bpm} BPM · ${rhythm.meter.numerator}/${rhythm.meter.denominator}`);
+  renderBeatDots(beatStrip, activeBeat, "beat-dot");
+  renderBeatDots(miniBeatStrip, activeBeat, "mini-beat-dot");
+}
+
+function applyClickVolume() {
+  if (!rhythmAudio.master) return;
+  const gain = Math.pow(clamp(rhythm.clickVolume, 0, 1), 1.6) * 2.8;
+  rhythmAudio.master.gain.rampTo(gain, 0.02);
+}
+
+function configureTransport() {
+  if (typeof Tone === "undefined") return;
+  Tone.Transport.bpm.value = rhythm.bpm;
+  Tone.Transport.timeSignature = [rhythm.meter.numerator, rhythm.meter.denominator];
+}
+
+function initRhythmAudio() {
+  if (rhythmAudio.ready || typeof Tone === "undefined") return;
+  rhythmAudio.master = new Tone.Gain(2.4).toDestination();
+  rhythmAudio.hitTone = new Tone.MembraneSynth({
+    pitchDecay: 0.008,
+    octaves: 0.55,
+    oscillator: { type: "square" },
+    envelope: { attack: 0.001, decay: 0.016, sustain: 0, release: 0.004 },
+  }).connect(rhythmAudio.master);
+  rhythmAudio.downbeatTone = new Tone.Synth({
+    oscillator: { type: "sine" },
+    envelope: { attack: 0.001, decay: 0.12, sustain: 0, release: 0.02 },
+  }).connect(rhythmAudio.master);
+  rhythmAudio.ready = true;
+  applyClickVolume();
+  configureTransport();
+}
+
+async function unlockRhythmAudio() {
+  if (typeof Tone === "undefined") return;
+  await Tone.start();
+  initRhythmAudio();
+}
+
+function playClick(accent, time) {
+  if (!rhythmAudio.ready) return;
+  rhythmAudio.hitTone.triggerAttackRelease(accent ? "C3" : "G2", accent ? "16n" : "32n", time, accent ? 0.82 : 0.56);
+  if (accent) {
+    rhythmAudio.downbeatTone.triggerAttackRelease("C5", "32n", time, 0.22);
+  }
+}
+
+function triggerRhythmBeat(time) {
+  const wrappedBeatIndex = ((rhythm.beatIndex % rhythm.meter.numerator) + rhythm.meter.numerator) % rhythm.meter.numerator;
+  const activeBeat = wrappedBeatIndex + 1;
+  const isCountIn = rhythm.beatIndex < 0;
+  const accent = activeBeat === 1;
+  playClick(accent, time);
+  rhythmPulse = Math.min(1.6, rhythmPulse + (accent ? 1.1 : 0.62));
+  rhythmAccent = accent ? 1 : Math.max(rhythmAccent, 0.32);
+  updateRhythmLabels(activeBeat, isCountIn);
+  rhythm.beatIndex += 1;
+}
+
+function tickRhythm() {
+  if (!rhythm.isPlaying || typeof Tone === "undefined") return;
+  const secondsPerBeat = getBeatSeconds();
+  const lookahead = Tone.Transport.seconds + 0.1;
+  while (rhythm.nextBeatTime < lookahead) {
+    triggerRhythmBeat(Tone.now() + Math.max(0, rhythm.nextBeatTime - Tone.Transport.seconds));
+    rhythm.nextBeatTime += secondsPerBeat;
+  }
+}
+
+function resetRhythm() {
+  rhythm.beatIndex = -rhythm.countInBars * rhythm.meter.numerator;
+  rhythm.nextBeatTime = typeof Tone !== "undefined" ? Tone.Transport.seconds + 0.06 : 0;
+  rhythm.countInBeatsRemaining = rhythm.countInBars * rhythm.meter.numerator;
+  rhythmPulse = 0;
+  rhythmAccent = 0;
+  updateRhythmLabels(1);
+}
+
+function applyRhythmInputs() {
+  rhythm.bpm = clamp(Math.round(Number(bpmInput.value) || 68), 40, 240);
+  bpmInput.value = rhythm.bpm;
+  rhythm.meter = parseMeter(meterSelect.value);
+  rhythm.subdivision = subdivisionModes[subdivisionSelect.value] ? subdivisionSelect.value : "auto";
+  rhythm.countInBars = clamp(Math.round(Number(countInSelect.value) || 0), 0, 2);
+  rhythm.clickVolume = clamp(Number(clickVolumeInput.value) / 100, 0, 1);
+  setText(clickVolumeLabel, `Click ${Math.round(rhythm.clickVolume * 100)}%`);
+  configureTransport();
+  applyClickVolume();
+  const wrappedBeatIndex = ((rhythm.beatIndex % rhythm.meter.numerator) + rhythm.meter.numerator) % rhythm.meter.numerator;
+  updateRhythmLabels(wrappedBeatIndex + 1, rhythm.beatIndex < 0);
+}
+
+async function toggleRhythmPlayback() {
+  await unlockRhythmAudio();
+  if (typeof Tone === "undefined") return;
+  rhythm.isPlaying = !rhythm.isPlaying;
+  if (rhythm.isPlaying) {
+    Tone.Transport.stop();
+    Tone.Transport.start("+0.02");
+    rhythm.nextBeatTime = Tone.Transport.seconds + 0.06;
+    rhythm.beatIndex = -rhythm.countInBars * rhythm.meter.numerator;
+    rhythm.countInBeatsRemaining = rhythm.countInBars * rhythm.meter.numerator;
+    setText(playPauseButton, "Pause");
+    showRhythmPanel(1800);
+  } else {
+    Tone.Transport.pause();
+    setText(playPauseButton, "Start");
+    syncRhythmPanelVisibility();
+  }
+}
+
+function showRhythmPanel(duration = 2400) {
+  rhythmPanelDismissed = false;
+  if (!rhythm.isPlaying) {
+    syncRhythmPanelVisibility();
+    return;
+  }
+  document.body.classList.add("rhythm-visible");
+  window.clearTimeout(rhythmPanelHideTimer);
+  if (duration <= 0) return;
+  rhythmPanelHideTimer = window.setTimeout(() => {
+    if (!rhythm.isPlaying) {
+      syncRhythmPanelVisibility();
+      return;
+    }
+    if (rhythmPanel?.matches(":hover") || document.activeElement?.closest?.(".rhythm-panel")) {
+      showRhythmPanel(1600);
+      return;
+    }
+    document.body.classList.remove("rhythm-visible");
+  }, duration);
+}
+
+function syncRhythmPanelVisibility() {
+  window.clearTimeout(rhythmPanelHideTimer);
+  document.body.classList.toggle("rhythm-pinned", !rhythm.isPlaying && !rhythmPanelDismissed);
+  if (!rhythm.isPlaying) {
+    document.body.classList.remove("rhythm-visible");
+  }
+}
+
+function hideRhythmPanel() {
+  rhythmPanelDismissed = true;
+  document.body.classList.remove("rhythm-visible");
+  syncRhythmPanelVisibility();
+}
+
+function handleRhythmPointerDown(event) {
+  if (rhythmPanel?.contains(event.target)) {
+    showRhythmPanel(0);
+    return;
+  }
+  if (event.target.closest(".controls")) return;
+  const isVisible = document.body.classList.contains("rhythm-visible") || document.body.classList.contains("rhythm-pinned");
+  if (isVisible) {
+    hideRhythmPanel();
+    return;
+  }
+  showRhythmPanel(0);
+}
+
+function handleRhythmPointerMove(event) {
+  if (event.pointerType && event.pointerType !== "mouse") return;
+  const now = performance.now();
+  if (now - lastRhythmPointerMove < 80) return;
+  lastRhythmPointerMove = now;
+  const proximity = window.innerWidth <= 720 ? 230 : 170;
+  if (window.innerHeight - event.clientY <= proximity) {
+    showRhythmPanel(rhythm.isPlaying ? 2200 : 0);
+  }
+}
+
 function reset() {
   fillTextures();
   positionTexture.needsUpdate = true;
@@ -820,6 +1090,9 @@ function animate(now) {
   lastFrameTime = now;
 
   const elapsed = clock.getElapsedTime();
+  tickRhythm();
+  rhythmPulse *= Math.pow(0.05, delta);
+  rhythmAccent *= Math.pow(0.08, delta);
 
   const simUniforms = positionVariable.material.uniforms;
   simUniforms.uTime.value = elapsed;
@@ -840,6 +1113,19 @@ function animate(now) {
 });
 
 resetButton.addEventListener("click", reset);
+[bpmInput, meterSelect, subdivisionSelect, countInSelect].forEach((input) => {
+  input.addEventListener("input", applyRhythmInputs);
+  input.addEventListener("change", resetRhythm);
+});
+clickVolumeInput.addEventListener("input", applyRhythmInputs);
+playPauseButton.addEventListener("click", toggleRhythmPlayback);
+rhythmResetButton.addEventListener("click", resetRhythm);
+window.addEventListener("pointerdown", unlockRhythmAudio, { once: true });
+window.addEventListener("pointerdown", handleRhythmPointerDown);
+window.addEventListener("pointermove", handleRhythmPointerMove);
+rhythmPanel?.addEventListener("pointerenter", () => showRhythmPanel(0));
+rhythmPanel?.addEventListener("focusin", () => showRhythmPanel(0));
+rhythmPanel?.addEventListener("input", () => showRhythmPanel(0));
 canvas.addEventListener("pointerdown", beginCameraDrag);
 canvas.addEventListener("pointermove", dragCamera);
 canvas.addEventListener("pointerup", endCameraDrag);
@@ -848,6 +1134,8 @@ canvas.addEventListener("wheel", zoomCamera, { passive: false });
 window.addEventListener("resize", resize);
 
 updateVisualControls();
+applyRhythmInputs();
+syncRhythmPanelVisibility();
 resize();
 updateCamera(1);
 requestAnimationFrame(animate);

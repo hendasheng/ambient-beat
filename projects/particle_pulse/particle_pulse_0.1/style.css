@@ -38,14 +38,16 @@ body {
   left: 28px;
   bottom: 28px;
   display: grid;
-  width: min(420px, calc(100vw - 56px));
-  gap: 14px;
-  padding: 18px;
+  width: min(460px, calc(100vw - 56px));
+  max-height: calc(100vh - 56px);
+  gap: 12px;
+  padding: 16px;
   border: 1px solid var(--panel-line);
   border-radius: 8px;
   background: var(--panel);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.26);
   backdrop-filter: blur(18px);
+  overflow: auto;
 }
 
 .identity {
@@ -86,7 +88,7 @@ h1 {
 
 label {
   display: grid;
-  grid-template-columns: 58px 1fr 42px;
+  grid-template-columns: 74px 1fr 54px;
   align-items: center;
   gap: 12px;
   color: var(--muted);
@@ -107,7 +109,7 @@ input[type="range"] {
 
 .buttons {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 

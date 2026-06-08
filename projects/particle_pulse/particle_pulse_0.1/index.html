@@ -8,7 +8,8 @@
   <script type="importmap">
     {
       "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"
+        "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/"
       }
     }
   </script>
@@ -17,38 +18,67 @@
   <main class="stage" aria-label="Particle Pulse v0.1">
     <canvas id="particleCanvas"></canvas>
 
-    <section class="controls" aria-label="Metronome controls">
+    <section class="controls" aria-label="Visual controls">
       <div class="identity">
         <a class="back-link" href="../index.html">Particle Pulse</a>
-        <h1>Particle Pulse</h1>
+        <h1>Particle Field</h1>
       </div>
 
       <div class="status">
-        <span id="stateLabel">Ready</span>
-        <span id="beatLabel">1 / 4</span>
+        <span>Visual Lab</span>
+        <span>GPU Curl</span>
       </div>
 
       <label>
-        <span>BPM</span>
-        <input id="bpmInput" type="range" min="50" max="180" value="92" />
-        <output id="bpmValue">92</output>
+        <span>Speed</span>
+        <input id="speedInput" type="range" min="0" max="120" value="27" />
+        <output id="speedValue">0.54</output>
       </label>
 
       <label>
-        <span>Beats</span>
-        <input id="meterInput" type="range" min="2" max="7" value="4" />
-        <output id="meterValue">4</output>
+        <span>Curl</span>
+        <input id="curlInput" type="range" min="5" max="40" value="6" />
+        <output id="curlValue">0.012</output>
       </label>
 
       <label>
-        <span>Pulse</span>
-        <input id="pulseInput" type="range" min="0" max="100" value="62" />
-        <output id="pulseValue">62</output>
+        <span>Life</span>
+        <input id="lifeInput" type="range" min="3" max="20" value="9" />
+        <output id="lifeValue">0.006</output>
+      </label>
+
+      <label>
+        <span>Size</span>
+        <input id="sizeInput" type="range" min="1800" max="4600" value="3000" step="50" />
+        <output id="sizeValue">3000</output>
+      </label>
+
+      <label>
+        <span>Azimuth</span>
+        <input id="lightAzimuthInput" type="range" min="-180" max="180" value="117" />
+        <output id="lightAzimuthValue">117</output>
+      </label>
+
+      <label>
+        <span>Height</span>
+        <input id="lightHeightInput" type="range" min="-40" max="80" value="45" />
+        <output id="lightHeightValue">45</output>
+      </label>
+
+      <label>
+        <span>Light</span>
+        <input id="lightPowerInput" type="range" min="0" max="200" value="100" />
+        <output id="lightPowerValue">1.00</output>
+      </label>
+
+      <label>
+        <span>Shadow</span>
+        <input id="shadowInput" type="range" min="0" max="8" value="2" step="0.1" />
+        <output id="shadowValue">2.0</output>
       </label>
 
       <div class="buttons">
-        <button id="startButton" type="button">Start</button>
-        <button id="resetButton" type="button">Reset</button>
+        <button id="resetButton" type="button">Reset Particles</button>
       </div>
     </section>
   </main>
