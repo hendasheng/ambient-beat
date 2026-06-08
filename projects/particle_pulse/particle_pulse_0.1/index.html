@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Particle Pulse v0.1</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="stage" aria-label="Particle Pulse v0.1">
+    <canvas id="particleCanvas"></canvas>
+
+    <section class="controls" aria-label="Metronome controls">
+      <div class="identity">
+        <a class="back-link" href="../index.html">Particle Pulse</a>
+        <h1>Particle Pulse</h1>
+      </div>
+
+      <div class="status">
+        <span id="stateLabel">Ready</span>
+        <span id="beatLabel">1 / 4</span>
+      </div>
+
+      <label>
+        <span>BPM</span>
+        <input id="bpmInput" type="range" min="50" max="180" value="92" />
+        <output id="bpmValue">92</output>
+      </label>
+
+      <label>
+        <span>Beats</span>
+        <input id="meterInput" type="range" min="2" max="7" value="4" />
+        <output id="meterValue">4</output>
+      </label>
+
+      <label>
+        <span>Pulse</span>
+        <input id="pulseInput" type="range" min="0" max="100" value="62" />
+        <output id="pulseValue">62</output>
+      </label>
+
+      <div class="buttons">
+        <button id="startButton" type="button">Start</button>
+        <button id="resetButton" type="button">Reset</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="sketch.js"></script>
+</body>
+</html>

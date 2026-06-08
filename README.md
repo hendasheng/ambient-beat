@@ -18,6 +18,7 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 ## Projects
 
 - [PingPong Topdown](./projects/pingpong_topdown/)：俯视视角下的极简乒乓球回合轨迹视觉项目，当前主版本为 v0.4。
+- [Particle Pulse](./projects/particle_pulse/)：以 Three.js 粒子、光尘和节拍波前表现 BPM 的视觉节拍器实验，当前主版本为 v0.1。
 
 ## Structure
 
@@ -29,7 +30,7 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 ├── CONTRIBUTING.md
 ├── AGENTS.md
 └── projects/
-    └── pingpong_topdown/
+    ├── pingpong_topdown/
         ├── index.html
         ├── README.md
         ├── requirements.md
@@ -38,6 +39,10 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
         ├── pingpong_topdown_0.2/
         ├── pingpong_topdown_0.3/
         └── pingpong_topdown_0.4/
+    └── particle_pulse/
+        ├── index.html
+        ├── README.md
+        └── particle_pulse_0.1/
 ```
 
 ## 本地开发与局域网访问
@@ -63,6 +68,7 @@ ipconfig
 ```text
 http://192.168.1.23:5500/
 http://192.168.1.23:5500/projects/pingpong_topdown/pingpong_topdown_0.4/
+http://192.168.1.23:5500/projects/particle_pulse/particle_pulse_0.1/
 ```
 
 不要使用 `localhost` 或 `127.0.0.1`，它们在手机上指向手机自身。如果仍然无法访问，请允许 VS Code / Live Server 通过 Windows 专用网络防火墙，或放行 TCP 端口 `5500`。

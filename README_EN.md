@@ -18,6 +18,7 @@ The root homepage is the project index. Each project keeps its own versions, doc
 ## Projects
 
 - [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.4.
+- [Particle Pulse](./projects/particle_pulse/): a Three.js particle metronome experiment using light dust, beat wavefronts, and spatial pulses to visualize BPM. The current main version is v0.1.
 
 ## Structure
 
@@ -29,7 +30,7 @@ The root homepage is the project index. Each project keeps its own versions, doc
 ├── CONTRIBUTING.md
 ├── AGENTS.md
 └── projects/
-    └── pingpong_topdown/
+    ├── pingpong_topdown/
         ├── index.html
         ├── README.md
         ├── requirements.md
@@ -38,6 +39,10 @@ The root homepage is the project index. Each project keeps its own versions, doc
         ├── pingpong_topdown_0.2/
         ├── pingpong_topdown_0.3/
         └── pingpong_topdown_0.4/
+    └── particle_pulse/
+        ├── index.html
+        ├── README.md
+        └── particle_pulse_0.1/
 ```
 
 ## Local Development And LAN Access
@@ -63,6 +68,7 @@ Find the IPv4 address of the active Wi-Fi adapter, such as `192.168.1.23`. Conne
 ```text
 http://192.168.1.23:5500/
 http://192.168.1.23:5500/projects/pingpong_topdown/pingpong_topdown_0.4/
+http://192.168.1.23:5500/projects/particle_pulse/particle_pulse_0.1/
 ```
 
 Do not use `localhost` or `127.0.0.1`; on a phone they point to the phone itself. If the site is still unreachable, allow VS Code / Live Server through the Windows private-network firewall or open TCP port `5500`.

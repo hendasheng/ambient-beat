@@ -1,0 +1,144 @@
+:root {
+  --panel: rgba(10, 16, 18, 0.68);
+  --panel-line: rgba(207, 231, 223, 0.18);
+  --text: #f4fbf8;
+  --muted: rgba(232, 242, 238, 0.68);
+  --accent: #80e0c0;
+  --accent-strong: #f4d28c;
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  overflow: hidden;
+  background: #071012;
+  color: var(--text);
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 620px;
+  overflow: hidden;
+}
+
+#particleCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.controls {
+  position: absolute;
+  left: 28px;
+  bottom: 28px;
+  display: grid;
+  width: min(420px, calc(100vw - 56px));
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(18px);
+}
+
+.identity {
+  display: grid;
+  gap: 5px;
+}
+
+.back-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.back-link::before {
+  content: "< ";
+}
+
+h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+label {
+  display: grid;
+  grid-template-columns: 58px 1fr 42px;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+output {
+  color: var(--text);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button {
+  min-height: 38px;
+  border: 1px solid rgba(128, 224, 192, 0.34);
+  border-radius: 8px;
+  background: rgba(128, 224, 192, 0.14);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: rgba(244, 210, 140, 0.52);
+  background: rgba(244, 210, 140, 0.16);
+}
+
+@media (max-width: 720px) {
+  .stage {
+    min-height: 100vh;
+  }
+
+  .controls {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    width: auto;
+  }
+}
