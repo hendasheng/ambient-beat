@@ -17,6 +17,7 @@ The root homepage is the project index. Each project keeps its own versions, doc
 
 ## Projects
 
+- [Beat Sync Monitor](./projects/beat_sync_monitor/): a real-time beat monitor using avsynctest-style sparse labels, bar-level ticks, and a solid progress block. The current main version is v0.1.
 - [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.4.
 
 ## Structure
@@ -29,6 +30,13 @@ The root homepage is the project index. Each project keeps its own versions, doc
 ├── CONTRIBUTING.md
 ├── AGENTS.md
 └── projects/
+    ├── beat_sync_monitor/
+        ├── index.html
+        ├── README.md
+        └── beat_sync_monitor_0.1/
+            ├── index.html
+            ├── sketch.js
+            └── style.css
     ├── pingpong_topdown/
         ├── index.html
         ├── README.md
@@ -62,6 +70,7 @@ Find the IPv4 address of the active Wi-Fi adapter, such as `192.168.1.23`. Conne
 
 ```text
 http://192.168.1.23:5500/
+http://192.168.1.23:5500/projects/beat_sync_monitor/beat_sync_monitor_0.1/
 http://192.168.1.23:5500/projects/pingpong_topdown/pingpong_topdown_0.4/
 ```
 

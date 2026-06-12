@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Beat Sync Monitor 0.1</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="app">
+    <canvas id="stage" aria-label="Beat sync monitor visualization"></canvas>
+
+    <div class="control-hotspot" tabindex="0" aria-label="Show beat controls"></div>
+
+    <section class="panel" aria-label="Beat controls">
+      <div class="panel-row panel-head">
+        <a class="back-link" href="../index.html">Versions</a>
+        <span class="version">Beat Sync Monitor · v0.1</span>
+      </div>
+
+      <div class="readout" id="readout">BPM 120 · BEAT 1/4 · BAR 001</div>
+
+      <div class="controls">
+        <label>
+          <span>BPM</span>
+          <input id="bpm" type="range" min="40" max="220" value="120" />
+        </label>
+
+        <label>
+          <span>Beats</span>
+          <select id="beats">
+            <option value="3">3/4</option>
+            <option value="4" selected>4/4</option>
+            <option value="5">5/4</option>
+            <option value="7">7/4</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Volume</span>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.55" />
+        </label>
+
+        <button id="transport" type="button">Start</button>
+        <button id="reset" type="button">Reset</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="./sketch.js"></script>
+</body>
+</html>

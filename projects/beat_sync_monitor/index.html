@@ -1,24 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ambient Beat</title>
+  <title>Beat Sync Monitor</title>
   <style>
     :root {
       --bg: #eef1f0;
       --paper: rgba(250, 251, 249, 0.88);
       --ink: #171717;
-      --muted: #666a66;
+      --muted: #6a6a63;
       --line: rgba(23, 23, 23, 0.12);
       --accent: #256f58;
       --shadow: 0 18px 42px rgba(22, 30, 28, 0.13);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -34,9 +31,23 @@
       margin: 0 auto;
     }
 
-    .hero {
-      margin-bottom: 28px;
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 22px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
     }
+
+    .back-link::before {
+      content: "<";
+      line-height: 1;
+    }
+
+    .hero { margin-bottom: 28px; }
 
     .eyebrow {
       margin: 0 0 10px;
@@ -49,7 +60,7 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(34px, 7vw, 64px);
+      font-size: clamp(32px, 6vw, 56px);
       line-height: 1;
       font-weight: 720;
     }
@@ -60,14 +71,6 @@
       color: var(--muted);
       font-size: 16px;
       line-height: 1.72;
-    }
-
-    .subtitle-line {
-      display: block;
-    }
-
-    .subtitle-line + .subtitle-line {
-      margin-top: 10px;
     }
 
     .grid {
@@ -87,7 +90,7 @@
       box-shadow: var(--shadow);
     }
 
-    .status {
+    .version {
       display: inline-flex;
       justify-self: start;
       max-width: 100%;
@@ -129,57 +132,36 @@
       align-items: center;
       gap: 8px;
       color: var(--accent);
+      text-decoration: none;
       font-size: 14px;
       font-weight: 650;
-      text-decoration: none;
     }
 
     .link::after {
       content: "->";
       line-height: 1;
     }
-
-    @media (max-width: 720px) {
-      body {
-        padding: 24px 16px;
-      }
-
-      .card {
-        padding: 18px;
-      }
-    }
   </style>
 </head>
-
 <body>
   <main>
+    <a class="back-link" href="../../index.html">Ambient Beat</a>
+
     <section class="hero">
-      <p class="eyebrow">Project Index</p>
-      <h1>Ambient Beat</h1>
-      <p class="subtitle">
-        <span class="subtitle-line">氛围节拍是一个基于 Web Audio 与实时视觉的开源节拍器实验。</span>
-        <span class="subtitle-line">它用不同的物理场景、材质碰撞和空间运动来生成节奏，让节拍不只是冷冰冰的计时，而是一种可以观看、聆听和调节的氛围系统。</span>
-      </p>
+      <p class="eyebrow">Project Versions</p>
+      <h1>Beat Sync Monitor</h1>
+      <p class="subtitle">借用 avsynctest 的测试画面语言，把参数标注替换为实时节拍文本，用于观察 BPM、当前拍、重拍和音频点击之间的同步关系。</p>
     </section>
 
-    <section class="grid" aria-label="Projects">
+    <section class="grid">
       <article class="card">
-        <span class="status">Active · v0.1</span>
-        <h2 class="project-name">Beat Sync Monitor</h2>
+        <span class="version">v0.1 Test Overlay</span>
+        <h2 class="project-name">beat_sync_monitor_0.1</h2>
         <p class="meta">Canvas2D | Web Audio | Sync Text</p>
-        <p class="desc">借用 avsynctest 的黑底高对比测试画面语言，用分散小字、小节刻度和实心块显示实时 BPM、当前拍和小节读数。</p>
-        <a class="link" href="./projects/beat_sync_monitor/index.html">进入项目</a>
-      </article>
-
-      <article class="card">
-        <span class="status">Active · v0.4</span>
-        <h2 class="project-name">PingPong Topdown</h2>
-        <p class="meta">Canvas2D | Tone.js | Rally Rhythm</p>
-        <p class="desc">俯视视角下的极简乒乓球回合轨迹视觉项目。当前版本在节拍器回合基础上优化移动端竖屏布局、触控面板和第一拍重音。</p>
-        <a class="link" href="./projects/pingpong_topdown/index.html">进入项目</a>
+        <p class="desc">黑底高对比测试画面、黄色参数文本、实时 beat/bar 读数和可调 BPM 点击声，先建立最小可用的节拍同步监视器。</p>
+        <a class="link" href="./beat_sync_monitor_0.1/index.html">进入 v0.1</a>
       </article>
     </section>
   </main>
 </body>
-
 </html>

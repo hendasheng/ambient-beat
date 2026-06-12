@@ -17,6 +17,7 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
 ## Projects
 
+- [Beat Sync Monitor](./projects/beat_sync_monitor/)：借用 avsynctest 的测试画面语言，用分散小字、小节刻度和实心块显示实时节拍，当前主版本为 v0.1。
 - [PingPong Topdown](./projects/pingpong_topdown/)：俯视视角下的极简乒乓球回合轨迹视觉项目，当前主版本为 v0.4。
 
 ## Structure
@@ -29,6 +30,13 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 ├── CONTRIBUTING.md
 ├── AGENTS.md
 └── projects/
+    ├── beat_sync_monitor/
+        ├── index.html
+        ├── README.md
+        └── beat_sync_monitor_0.1/
+            ├── index.html
+            ├── sketch.js
+            └── style.css
     ├── pingpong_topdown/
         ├── index.html
         ├── README.md
@@ -62,6 +70,7 @@ ipconfig
 
 ```text
 http://192.168.1.23:5500/
+http://192.168.1.23:5500/projects/beat_sync_monitor/beat_sync_monitor_0.1/
 http://192.168.1.23:5500/projects/pingpong_topdown/pingpong_topdown_0.4/
 ```
 
