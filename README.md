@@ -8,7 +8,9 @@
 
 GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
-根目录首页是项目入口；每个具体项目在 `projects/` 下维护自己的版本、文档和演进记录。
+根目录首页是给 GitHub Pages 访客使用的项目入口，项目卡片会直接进入当前主版本；每个具体项目在 `projects/` 下维护自己的版本列表、文档和演进记录。
+
+节拍器相关项目尽量沿用统一控制模型：Tempo、Meter、Rhythm、Count In、Click Volume、Start 和 Reset，以及播放后自动隐藏的底部控制面板。
 
 ## 参与贡献
 
@@ -17,7 +19,7 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
 ## Projects
 
-- [Beat Sync Monitor](./projects/beat_sync_monitor/)：借用 avsynctest 的测试画面语言，用分散小字、小节刻度和实心块显示实时节拍，当前主版本为 v0.1。
+- [Beat Sync Monitor](./projects/beat_sync_monitor/)：借用 avsynctest 的测试画面语言，用居中的节奏模块、动态数据矩阵、点击说明浮层和隐藏式节拍控制面板观察实时同步状态，当前主版本为 v0.1。
 - [PingPong Topdown](./projects/pingpong_topdown/)：俯视视角下的极简乒乓球回合轨迹视觉项目，当前主版本为 v0.4。
 
 ## Structure

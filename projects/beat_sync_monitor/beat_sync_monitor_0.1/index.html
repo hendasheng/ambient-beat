@@ -10,41 +10,77 @@
   <main class="app">
     <canvas id="stage" aria-label="Beat sync monitor visualization"></canvas>
 
-    <div class="control-hotspot" tabindex="0" aria-label="Show beat controls"></div>
+    <div class="data-popover" id="dataPopover" role="status" aria-live="polite" hidden>
+      <div class="data-popover-label" id="dataPopoverLabel"></div>
+      <div class="data-popover-value" id="dataPopoverValue"></div>
+      <div class="data-popover-desc" id="dataPopoverDesc"></div>
+    </div>
 
-    <section class="panel" aria-label="Beat controls">
-      <div class="panel-row panel-head">
-        <a class="back-link" href="../index.html">Versions</a>
-        <span class="version">Beat Sync Monitor · v0.1</span>
+    <aside class="rhythm-panel" aria-label="Beat controls">
+      <div class="rhythm-primary">
+        <div class="control-group timing-group">
+          <span class="group-label">Tempo</span>
+          <div class="control-grid">
+            <label for="bpmInput">
+              <span class="label">BPM</span>
+              <input id="bpmInput" type="number" min="40" max="220" step="1" value="120" inputmode="numeric" />
+            </label>
+            <label for="meterSelect">
+              <span class="label">Meter</span>
+              <select id="meterSelect">
+                <option value="3/4">3/4</option>
+                <option value="4/4" selected>4/4</option>
+                <option value="5/4">5/4</option>
+                <option value="7/4">7/4</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group feel-group">
+          <span class="group-label">Rally Feel</span>
+          <div class="control-grid">
+            <label for="subdivisionSelect">
+              <span class="label">Rhythm</span>
+              <select id="subdivisionSelect">
+                <option value="auto" selected>Auto</option>
+                <option value="eighth">1/8</option>
+                <option value="triplet">1/8T</option>
+                <option value="sixteenth">1/16</option>
+              </select>
+            </label>
+            <label for="countInSelect">
+              <span class="label">Count In</span>
+              <select id="countInSelect">
+                <option value="0" selected>None</option>
+                <option value="1">1 bar</option>
+                <option value="2">2 bars</option>
+              </select>
+            </label>
+          </div>
+        </div>
       </div>
 
-      <div class="readout" id="readout">BPM 120 · BEAT 1/4 · BAR 001</div>
-
-      <div class="controls">
-        <label>
-          <span>BPM</span>
-          <input id="bpm" type="range" min="40" max="220" value="120" />
-        </label>
-
-        <label>
-          <span>Beats</span>
-          <select id="beats">
-            <option value="3">3/4</option>
-            <option value="4" selected>4/4</option>
-            <option value="5">5/4</option>
-            <option value="7">7/4</option>
-          </select>
-        </label>
-
-        <label>
-          <span>Volume</span>
-          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.55" />
-        </label>
-
-        <button id="transport" type="button">Start</button>
-        <button id="reset" type="button">Reset</button>
+      <div class="control-group beat-group">
+        <span class="group-label">Beat</span>
+        <div class="beat-strip" id="beatStrip" aria-hidden="true"></div>
+        <div class="rhythm-readout">
+          <strong id="tempoLabel">120 BPM</strong>
+          <span id="meterLabel">4/4 · beat 1 · bar 001</span>
+        </div>
       </div>
-    </section>
+
+      <div class="transport-bar">
+        <label for="clickVolumeInput" class="volume-control">
+          <span class="label" id="clickVolumeLabel">Click 55%</span>
+          <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="55" />
+        </label>
+        <div class="transport-controls">
+          <button id="playPauseButton" type="button">Start</button>
+          <button id="resetButton" type="button">Reset</button>
+        </div>
+      </div>
+    </aside>
   </main>
 
   <script src="./sketch.js"></script>

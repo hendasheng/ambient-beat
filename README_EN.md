@@ -8,7 +8,9 @@ It uses physical scenes, material collisions, and spatial motion to generate rhy
 
 GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
-The root homepage is the project index. Each project keeps its own versions, documents, and evolution history under `projects/`.
+The root homepage is the GitHub Pages project entry and project cards open the current main version directly. Each project keeps its own version index, documents, and evolution history under `projects/`.
+
+Metronome-based projects should reuse the shared control model where possible: Tempo, Meter, Rhythm, Count In, Click Volume, Start, Reset, and the bottom control panel that auto-hides while playing.
 
 ## Contributing
 
@@ -17,7 +19,7 @@ The root homepage is the project index. Each project keeps its own versions, doc
 
 ## Projects
 
-- [Beat Sync Monitor](./projects/beat_sync_monitor/): a real-time beat monitor using avsynctest-style sparse labels, bar-level ticks, and a solid progress block. The current main version is v0.1.
+- [Beat Sync Monitor](./projects/beat_sync_monitor/): a real-time beat monitor using an avsynctest-style data matrix, a centered rhythm module, clickable metric explanations, and a hidden metronome control panel. The current main version is v0.1.
 - [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.4.
 
 ## Structure
