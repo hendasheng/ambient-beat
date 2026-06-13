@@ -193,6 +193,19 @@ body.rhythm-pinned .rhythm-panel {
   padding: 0 7px;
 }
 
+.rhythm-primary select option {
+  background: #101010;
+  color: #f7f7f7;
+}
+
+.rhythm-primary input:focus,
+.rhythm-primary select:focus,
+.volume-control input:focus,
+.transport-controls button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.72);
+  outline-offset: 2px;
+}
+
 .volume-control input[type="range"] {
   padding: 0;
   accent-color: #ffffff;
@@ -335,6 +348,24 @@ body.rhythm-pinned .rhythm-panel {
 .rhythm-primary input:hover,
 .rhythm-primary select:hover {
   background: rgba(255, 255, 255, 0.14);
+}
+
+.transport-controls button:hover {
+  border-color: rgba(255, 255, 255, 0.36);
+  color: #ffffff;
+}
+
+.transport-controls button:first-child:hover {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.9);
+  color: #020202;
+}
+
+.rhythm-primary input:hover,
+.rhythm-primary select:hover,
+.volume-control input:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: #ffffff;
 }
 
 @media (max-width: 680px) {

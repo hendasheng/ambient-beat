@@ -35,6 +35,7 @@ jobs:
           cp index.html site/
           cp .nojekyll site/
           cp -R projects site/
+          cp -R shared site/
 
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3

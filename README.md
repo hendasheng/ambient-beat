@@ -31,6 +31,9 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 ├── README_EN.md
 ├── CONTRIBUTING.md
 ├── AGENTS.md
+├── shared/
+│   └── metronome/
+│       └── metronome.js
 └── projects/
     ├── beat_sync_monitor/
         ├── index.html

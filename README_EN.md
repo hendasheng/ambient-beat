@@ -31,6 +31,9 @@ Metronome-based projects should reuse the shared control model where possible: T
 ├── README_EN.md
 ├── CONTRIBUTING.md
 ├── AGENTS.md
+├── shared/
+│   └── metronome/
+│       └── metronome.js
 └── projects/
     ├── beat_sync_monitor/
         ├── index.html

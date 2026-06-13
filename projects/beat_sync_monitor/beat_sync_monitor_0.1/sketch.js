@@ -24,26 +24,19 @@
   let activeDataSlotId = "";
   let latestDataSlots = [];
 
-  const state = {
-    running: false,
+  const metronome = window.AmbientMetronome.createMetronome({
     bpm: Number(bpmInput.value),
     beatsPerBar: parseMeter(meterSelect.value),
     subdivision: subdivisionSelect.value,
     countInBars: Number(countInSelect.value),
-    countingIn: false,
-    countInBeatsRemaining: 0,
-    countInTotalBeats: 0,
-    beatIndex: 0,
-    bar: 1,
-    startAt: performance.now(),
-    nextBeatAt: 0,
-    lastBeatAt: performance.now(),
-    audioContext: null,
-    masterGain: null,
-    frameIndex: 0,
-    fps: 0,
-    lastFrameAt: 0,
-  };
+    clickVolume: Number(clickVolumeInput.value) / 100,
+    onChange: () => updateReadout(),
+  });
+
+  const state = metronome.state;
+  state.frameIndex = 0;
+  state.fps = 0;
+  state.lastFrameAt = 0;
 
   const subdivisionModes = {
     auto: { label: "Auto", visualSubdivisions: 8 },
@@ -69,91 +62,15 @@
   }
 
   function ensureAudio() {
-    if (state.audioContext) {
-      return;
-    }
-
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    state.audioContext = new AudioContext();
-    state.masterGain = state.audioContext.createGain();
-    state.masterGain.gain.value = clickVolume();
-    state.masterGain.connect(state.audioContext.destination);
-  }
-
-  function scheduleClick(accent) {
-    if (!state.audioContext || !state.masterGain) {
-      return;
-    }
-
-    const now = state.audioContext.currentTime;
-    const osc = state.audioContext.createOscillator();
-    const gain = state.audioContext.createGain();
-    const frequency = accent ? 1320 : 880;
-    const level = accent ? 0.9 : 0.58;
-
-    osc.type = "square";
-    osc.frequency.setValueAtTime(frequency, now);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(level, now + 0.004);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
-    osc.connect(gain);
-    gain.connect(state.masterGain);
-    osc.start(now);
-    osc.stop(now + 0.07);
-  }
-
-  function stepBeat() {
-    if (state.countingIn) {
-      if (state.countInBeatsRemaining <= 0) {
-        state.countingIn = false;
-        state.beatIndex = 0;
-        state.bar = 1;
-        state.startAt = performance.now();
-        state.lastBeatAt = state.startAt;
-        scheduleClick(true);
-        updateReadout();
-        return;
-      }
-
-      advanceCountInBeat(performance.now());
-      updateReadout();
-      return;
-    }
-
-    state.beatIndex += 1;
-
-    if (state.beatIndex >= state.beatsPerBar) {
-      state.beatIndex = 0;
-      state.bar += 1;
-    }
-
-    state.lastBeatAt = performance.now();
-    scheduleClick(state.beatIndex === 0);
-    updateReadout();
-  }
-
-  function advanceCountInBeat(now) {
-    const countIndex = state.countInTotalBeats - state.countInBeatsRemaining;
-    state.beatIndex = countIndex % state.beatsPerBar;
-    state.bar = 1;
-    state.lastBeatAt = now;
-    state.countInBeatsRemaining -= 1;
-    scheduleClick(state.beatIndex === 0);
+    return metronome.ensureAudio();
   }
 
   function intervalMs() {
-    return 60000 / state.bpm;
+    return metronome.intervalMs();
   }
 
   function updateScheduler(now) {
-    if (!state.running) {
-      return;
-    }
-
-    while (now >= state.nextBeatAt) {
-      stepBeat();
-      state.nextBeatAt += intervalMs();
-    }
+    metronome.update(now);
   }
 
   function padBar(value) {
@@ -267,9 +184,10 @@
   }
 
   function getDataSlots(now, beatProgress, pulse) {
-    const beat = state.beatIndex + 1;
-    const barPosition = state.bar + (state.beatIndex + beatProgress) / state.beatsPerBar;
-    const elapsedSeconds = state.running ? (now - state.startAt) / 1000 : 0;
+    const visualBeatIndex = state.countingIn ? 0 : state.beatIndex;
+    const beat = visualBeatIndex + 1;
+    const barPosition = state.bar + (visualBeatIndex + beatProgress) / state.beatsPerBar;
+    const elapsedSeconds = state.running ? Math.max(0, (now - state.startAt) / 1000) : 0;
     const audioRate = state.audioContext ? state.audioContext.sampleRate : 44100;
     const audioSeconds = state.audioContext ? state.audioContext.currentTime : 0;
     const sampleFrame = Math.floor(audioSeconds * audioRate);
@@ -439,7 +357,8 @@
     const beatWidth = (right - left) / state.beatsPerBar;
     const step = beatWidth / subdivisions;
     const totalSteps = count - 1;
-    const barProgress = (state.beatIndex + beatProgress) / state.beatsPerBar;
+    const visualBeatIndex = state.countingIn ? 0 : state.beatIndex;
+    const barProgress = (visualBeatIndex + beatProgress) / state.beatsPerBar;
     const blockWidth = Math.min(Math.max(18, beatWidth * 0.08), Math.max(4, right - left));
     const markerX = Math.min(
       left + (right - left) * Math.min(barProgress, 0.999),
@@ -489,7 +408,8 @@
     const beatHeight = (bottom - top) / state.beatsPerBar;
     const step = beatHeight / subdivisions;
     const totalSteps = count - 1;
-    const barProgress = (state.beatIndex + beatProgress) / state.beatsPerBar;
+    const visualBeatIndex = state.countingIn ? 0 : state.beatIndex;
+    const barProgress = (visualBeatIndex + beatProgress) / state.beatsPerBar;
     const blockWidth = tickWidth * 0.8;
     const blockHeight = Math.min(Math.max(18, beatHeight * 0.08), Math.max(4, bottom - top));
     const markerY = Math.max(
@@ -598,9 +518,8 @@
     updateFrameStats(now);
     updateScheduler(now);
 
-    const elapsed = now - state.lastBeatAt;
-    const progress = state.running ? Math.min(elapsed / intervalMs(), 1) : 0;
-    const pulse = Math.max(0, 1 - elapsed / 180);
+    const progress = state.countingIn ? 0 : metronome.beatProgress(now);
+    const pulse = state.countingIn ? 0 : metronome.pulse(now);
 
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = "#020202";
@@ -727,85 +646,61 @@
   }
 
   playPauseButton.addEventListener("click", async () => {
-    ensureAudio();
-    await state.audioContext.resume();
-
-    state.running = !state.running;
-    setTransportText();
+    const audioContext = ensureAudio();
+    await audioContext.resume();
 
     if (state.running) {
-      state.lastBeatAt = performance.now();
-      state.nextBeatAt = state.lastBeatAt + intervalMs();
-      state.countInTotalBeats = state.countInBars * state.beatsPerBar;
-      state.countInBeatsRemaining = state.countInTotalBeats;
-      state.countingIn = state.countInTotalBeats > 0;
-
-      if (state.countingIn) {
-        state.startAt = state.lastBeatAt + state.countInTotalBeats * intervalMs();
-        advanceCountInBeat(state.lastBeatAt);
-      } else {
-        state.startAt = state.lastBeatAt;
-        scheduleClick(state.beatIndex === 0);
-      }
+      metronome.pause();
     } else {
-      state.countingIn = false;
-      state.countInBeatsRemaining = 0;
+      metronome.start(performance.now());
     }
-
+    setTransportText();
     updateReadout();
     showRhythmPanel(state.running ? 2200 : 0);
     syncRhythmPanelVisibility();
   });
 
   resetButton.addEventListener("click", () => {
-    state.beatIndex = 0;
-    state.bar = 1;
-    state.countingIn = false;
-    state.countInBeatsRemaining = 0;
-    state.lastBeatAt = performance.now();
-    state.startAt = state.lastBeatAt;
-    state.nextBeatAt = state.lastBeatAt;
+    metronome.pause();
+    metronome.reset(performance.now());
+    setTransportText();
     updateReadout();
-    showRhythmPanel(state.running ? 2200 : 0);
+    showRhythmPanel(0);
+    syncRhythmPanelVisibility();
   });
 
   bpmInput.addEventListener("change", () => {
-    state.bpm = clamp(Math.round(Number(bpmInput.value) || 120), 40, 220);
+    state.bpm = metronome.setBpm(bpmInput.value);
     bpmInput.value = state.bpm;
     updateReadout();
     showRhythmPanel(state.running ? 2200 : 0);
   });
 
   bpmInput.addEventListener("input", () => {
-    state.bpm = clamp(Math.round(Number(bpmInput.value) || 120), 40, 220);
+    state.bpm = metronome.setBpm(bpmInput.value);
     updateReadout();
   });
 
   meterSelect.addEventListener("change", () => {
-    state.beatsPerBar = parseMeter(meterSelect.value);
-    state.beatIndex = Math.min(state.beatIndex, state.beatsPerBar - 1);
-    state.countInTotalBeats = state.countInBars * state.beatsPerBar;
+    state.beatsPerBar = metronome.setBeatsPerBar(parseMeter(meterSelect.value));
     updateReadout();
     showRhythmPanel(state.running ? 2200 : 0);
   });
 
   subdivisionSelect.addEventListener("change", () => {
-    state.subdivision = subdivisionModes[subdivisionSelect.value] ? subdivisionSelect.value : "auto";
+    state.subdivision = metronome.setSubdivision(subdivisionModes[subdivisionSelect.value] ? subdivisionSelect.value : "auto");
     updateReadout();
     showRhythmPanel(state.running ? 2200 : 0);
   });
 
   countInSelect.addEventListener("change", () => {
-    state.countInBars = clamp(Math.round(Number(countInSelect.value) || 0), 0, 2);
-    state.countInTotalBeats = state.countInBars * state.beatsPerBar;
+    state.countInBars = metronome.setCountInBars(countInSelect.value);
     updateReadout();
     showRhythmPanel(state.running ? 2200 : 0);
   });
 
   clickVolumeInput.addEventListener("input", () => {
-    if (state.masterGain) {
-      state.masterGain.gain.value = clickVolume();
-    }
+    metronome.setClickVolume(clickVolume());
     updateReadout();
     showRhythmPanel(state.running ? 2200 : 0);
   });
