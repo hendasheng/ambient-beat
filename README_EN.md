@@ -20,7 +20,7 @@ Metronome-based projects should reuse the shared control model where possible: T
 ## Projects
 
 - [Beat Sync Monitor](./projects/beat_sync_monitor/): a real-time beat monitor using an avsynctest-style data matrix, a centered rhythm module, clickable metric explanations, and a hidden metronome control panel. The current main version is v0.1.
-- [Recursive Cells](./projects/recursive_cells/): a dynamic black-and-white recursive cell-splitting experiment where static rest points stabilize the topology while the shared metronome drives point motion and beat pulses. The current main version is v0.1.
+- [Recursive Cells](./projects/recursive_cells/): a dynamic recursive cell-splitting experiment where static rest points stabilize the topology while the shared metronome drives point motion and split distribution. The current main version v0.2 uses FFmpeg testsrc-style color blocks.
 - [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.4.
 
 ## Structure
@@ -46,7 +46,11 @@ Metronome-based projects should reuse the shared control model where possible: T
     ├── recursive_cells/
         ├── index.html
         ├── README.md
-        └── recursive_cells_0.1/
+        ├── recursive_cells_0.1/
+        │   ├── index.html
+        │   ├── sketch.js
+        │   └── style.css
+        └── recursive_cells_0.2/
             ├── index.html
             ├── sketch.js
             └── style.css

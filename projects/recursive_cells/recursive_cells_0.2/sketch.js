@@ -7,6 +7,10 @@ const minSizeInput = document.getElementById("minSizeInput");
 const minSizeValue = document.getElementById("minSizeValue");
 const irregularityInput = document.getElementById("irregularityInput");
 const irregularityValue = document.getElementById("irregularityValue");
+const motionInput = document.getElementById("motionInput");
+const motionValue = document.getElementById("motionValue");
+const speedInput = document.getElementById("speedInput");
+const speedValue = document.getElementById("speedValue");
 const resetButton = document.getElementById("resetButton");
 const cellCount = document.getElementById("cellCount");
 const fpsReadout = document.getElementById("fpsReadout");
@@ -36,15 +40,29 @@ let rhythmPanelHideTimer = 0;
 let lastRhythmPointerMove = 0;
 let rhythmPanelDismissed = false;
 let beatEnergy = 0;
+let pointTransition = null;
+let splitTransition = null;
 
 const settings = {
   points: 240,
   minSize: 34,
   irregularity: 0.62,
+  motionBlend: 0.45,
+  speed: 0.2,
 };
 
-const pointMotionBlend = 0.58;
-const pointMotionSpeed = 0.48;
+const testsrcPalette = [
+  "#ffffff",
+  "#ffff00",
+  "#00ffff",
+  "#00ff00",
+  "#ff00ff",
+  "#ff0000",
+  "#0000ff",
+  "#000000",
+  "#bfbfbf",
+  "#404040",
+];
 
 const subdivisionModes = {
   auto: { label: "Auto", multiplier: 1 },
@@ -114,6 +132,33 @@ function makeRng(initialSeed) {
   };
 }
 
+function testsrcColor(cell) {
+  const band = Math.floor((cell.x / Math.max(1, width)) * 7);
+  const depthShift = Math.floor(sr(cell.key, 83) * testsrcPalette.length);
+  const countShift = cell.count > 0 ? cell.count % testsrcPalette.length : 0;
+  const index = (band + cell.depth * 2 + depthShift + countShift) % testsrcPalette.length;
+
+  return testsrcPalette[index];
+}
+
+function hexToRgb(hex) {
+  const value = hex.replace("#", "");
+  return {
+    r: parseInt(value.slice(0, 2), 16),
+    g: parseInt(value.slice(2, 4), 16),
+    b: parseInt(value.slice(4, 6), 16),
+  };
+}
+
+function colorLuma(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  return (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+}
+
+function textColorForFill(color) {
+  return colorLuma(color) > 0.56 ? "rgba(0, 0, 0, 0.78)" : "rgba(255, 255, 255, 0.86)";
+}
+
 function safeSplit(baseSplit, localOffset, dmin, dmax, minSize, motionBlend) {
   const dsize = dmax - dmin;
   if (dsize <= 0.00001) {
@@ -141,10 +186,14 @@ function updateSettingsFromInputs() {
   settings.points = Number(pointInput.value);
   settings.minSize = Number(minSizeInput.value);
   settings.irregularity = Number(irregularityInput.value) / 100;
+  settings.motionBlend = Number(motionInput.value) / 100;
+  settings.speed = Number(speedInput.value) / 100;
 
   pointValue.value = String(settings.points);
   minSizeValue.value = String(settings.minSize);
   irregularityValue.value = settings.irregularity.toFixed(2);
+  motionValue.value = settings.motionBlend.toFixed(2);
+  speedValue.value = settings.speed.toFixed(2);
 }
 
 function resize() {
@@ -195,7 +244,7 @@ function getBounds() {
 }
 
 function motionPhase(time, now) {
-  const speed = lerp(0.22, 1.18, pointMotionSpeed) * getSubdivisionMode().multiplier;
+  const speed = lerp(0.22, 1.18, settings.speed) * getSubdivisionMode().multiplier;
 
   if (!rhythm.running) {
     return time * speed;
@@ -227,6 +276,22 @@ function splitMorphClock(now) {
   return musicalBeat(now);
 }
 
+function beginPointTransition(now) {
+  pointTransition = {
+    startAt: now,
+    duration: 260,
+    points: points.map((point) => ({ curX: point.curX, curZ: point.curZ })),
+  };
+}
+
+function beginSplitTransition(now) {
+  splitTransition = {
+    startAt: now,
+    duration: 260,
+    clock: splitMorphClock(now),
+  };
+}
+
 function splitMorphTarget(key, axisSalt, step) {
   const coarse = Math.floor(step / Math.max(1, rhythm.beatsPerBar));
   const beatWeight = sr(key * 2.3 + step * 13, axisSalt) * 2 - 1;
@@ -235,18 +300,30 @@ function splitMorphTarget(key, axisSalt, step) {
   return beatWeight * 0.58 + barWeight * 0.42;
 }
 
-function splitMorphOffset(key, axis, span, usable, now) {
-  const clock = splitMorphClock(now);
+function splitMorphOffsetAtClock(key, axis, span, usable, clock, previewDamping) {
   const step = Math.floor(clock);
   const stepT = easeOutQuart(clock - step);
   const axisSalt = axis === "x" ? 503 : 709;
   const from = splitMorphTarget(key, axisSalt, step);
   const to = splitMorphTarget(key, axisSalt, step + 1);
   const depthDamping = lerp(1, 0.46, clamp(Math.log2(Math.max(2, key)) / 12, 0, 1));
-  const previewDamping = rhythm.running ? 1 : 0.35;
   const maxShift = Math.min(span * 0.24, usable * 0.42);
 
   return lerp(from, to, stepT) * maxShift * depthDamping * previewDamping;
+}
+
+function splitMorphOffset(key, axis, span, usable, now) {
+  const previewDamping = rhythm.running ? 1 : 0.35;
+  const target = splitMorphOffsetAtClock(key, axis, span, usable, splitMorphClock(now), previewDamping);
+
+  if (!splitTransition) {
+    return target;
+  }
+
+  const t = easeOutQuart((now - splitTransition.startAt) / splitTransition.duration);
+  const from = splitMorphOffsetAtClock(key, axis, span, usable, splitTransition.clock, previewDamping);
+
+  return lerp(from, target, t);
 }
 
 function beatClock(now) {
@@ -281,6 +358,8 @@ function updatePoints(time, now) {
   for (let i = 0; i < points.length; i += 1) {
     const point = points[i];
     const amp = point.amp * scale * pulseAmp;
+    let targetX = point.restX;
+    let targetZ = point.restZ;
 
     if (rhythm.running) {
       const poseAX = beatPose(point, i, beatA, "x");
@@ -290,12 +369,28 @@ function updatePoints(time, now) {
       const driftX = lerp(poseAX, poseBX, beatT);
       const driftZ = lerp(poseAZ, poseBZ, beatT);
 
-      point.curX = point.restX + driftX * amp / Math.max(1, bounds.maxX - bounds.minX);
-      point.curZ = point.restZ + driftZ * amp / Math.max(1, bounds.maxZ - bounds.minZ);
+      targetX = point.restX + driftX * amp / Math.max(1, bounds.maxX - bounds.minX);
+      targetZ = point.restZ + driftZ * amp / Math.max(1, bounds.maxZ - bounds.minZ);
     } else {
-      point.curX = point.restX + Math.sin(phase * point.freqX + point.phaseX + i * 1.37) * amp / Math.max(1, bounds.maxX - bounds.minX);
-      point.curZ = point.restZ + Math.cos(phase * point.freqZ + point.phaseZ + i * 2.11) * amp / Math.max(1, bounds.maxZ - bounds.minZ);
+      targetX = point.restX + Math.sin(phase * point.freqX + point.phaseX + i * 1.37) * amp / Math.max(1, bounds.maxX - bounds.minX);
+      targetZ = point.restZ + Math.cos(phase * point.freqZ + point.phaseZ + i * 2.11) * amp / Math.max(1, bounds.maxZ - bounds.minZ);
     }
+
+    if (pointTransition && pointTransition.points[i]) {
+      const t = easeOutQuart((now - pointTransition.startAt) / pointTransition.duration);
+      point.curX = lerp(pointTransition.points[i].curX, targetX, t);
+      point.curZ = lerp(pointTransition.points[i].curZ, targetZ, t);
+    } else {
+      point.curX = targetX;
+      point.curZ = targetZ;
+    }
+  }
+
+  if (pointTransition && now - pointTransition.startAt >= pointTransition.duration) {
+    pointTransition = null;
+  }
+  if (splitTransition && now - splitTransition.startAt >= splitTransition.duration) {
+    splitTransition = null;
   }
 }
 
@@ -400,7 +495,7 @@ function buildCells(now) {
         }
       }
 
-      const dsplit = safeSplit(baseDsplit, localOffset, dminx, dmaxx, minSize, pointMotionBlend);
+      const dsplit = safeSplit(baseDsplit, localOffset, dminx, dmaxx, minSize, settings.motionBlend);
       stack.push({
         rminx: rsplit, rmaxx: cell.rmaxx, rminz: cell.rminz, rmaxz: cell.rmaxz,
         dminx: dsplit, dmaxx, dminz, dmaxz, depth: cell.depth + 1, key: cell.key * 2 + 2,
@@ -433,7 +528,7 @@ function buildCells(now) {
         }
       }
 
-      const dsplit = safeSplit(baseDsplit, localOffset, dminz, dmaxz, minSize, pointMotionBlend);
+      const dsplit = safeSplit(baseDsplit, localOffset, dminz, dmaxz, minSize, settings.motionBlend);
       stack.push({
         rminx: cell.rminx, rmaxx: cell.rmaxx, rminz: rsplit, rmaxz: cell.rmaxz,
         dminx, dmaxx, dminz: dsplit, dmaxz, depth: cell.depth + 1, key: cell.key * 2 + 2,
@@ -451,57 +546,127 @@ function drawBackground() {
   ctx.fillRect(0, 0, width, height);
 }
 
-function strokeCellEdges(cell) {
-  const x1 = cell.x + 0.5;
-  const y1 = cell.y + 0.5;
-  const x2 = cell.x + cell.w - 0.5;
-  const y2 = cell.y + cell.h - 0.5;
-  const edgeEpsilon = 0.75;
-
-  ctx.beginPath();
-
-  if (cell.x > edgeEpsilon) {
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x1, y2);
-  }
-  if (cell.y > edgeEpsilon) {
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y1);
-  }
-  if (cell.x + cell.w < width - edgeEpsilon) {
-    ctx.moveTo(x2, y1);
-    ctx.lineTo(x2, y2);
-  }
-  if (cell.y + cell.h < height - edgeEpsilon) {
-    ctx.moveTo(x1, y2);
-    ctx.lineTo(x2, y2);
-  }
-
-  ctx.stroke();
+function beatProgressText(now) {
+  return metronome.beatProgress(now).toFixed(3);
 }
 
-function drawCells(time) {
-  ctx.save();
-  ctx.lineJoin = "miter";
-  ctx.lineCap = "square";
+function rhythmCellLines(cell, now) {
+  const beat = rhythm.beatIndex + 1;
+  const barText = padBar(rhythm.bar);
+  const mode = getSubdivisionMode().label.toUpperCase();
+  const slots = [
+    ["BPM", String(rhythm.bpm)],
+    ["BEAT", `${beat}/${rhythm.beatsPerBar}`],
+    ["BAR", barText],
+    ["PH", beatProgressText(now)],
+    ["MODE", mode],
+    ["CELLS", String(cells.length)],
+    ["DEPTH", String(cell.depth).padStart(2, "0")],
+    ["PTS", String(cell.count).padStart(2, "0")],
+  ];
+  const slot = slots[Math.floor(sr(cell.key, 181) * slots.length) % slots.length];
 
-  for (let i = 0; i < cells.length; i += 1) {
-    const cell = cells[i];
-    const pulse = 0.5 + 0.5 * Math.sin(time * 1.7 + cell.key * 0.037);
-    const filled = sr(cell.key, 44) > 0.68;
-    const inset = Math.max(0.75, Math.min(2.5, cell.depth * 0.18));
-
-    ctx.globalAlpha = filled ? 0.88 : 0.045 + pulse * 0.05;
-    ctx.fillStyle = filled ? "#f4f4f4" : "#ffffff";
-    ctx.fillRect(cell.x + inset, cell.y + inset, Math.max(0, cell.w - inset * 2), Math.max(0, cell.h - inset * 2));
-
-    ctx.globalAlpha = 0.72;
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = cell.depth <= 3 ? 1.2 : 0.82;
-    strokeCellEdges(cell);
+  if (!rhythm.running && slot[0] === "PH") {
+    return ["FREE", settings.speed.toFixed(2)];
   }
 
+  if (rhythm.countingIn && slot[0] === "BAR") {
+    return ["PRE", String(rhythm.countInBeatsRemaining).padStart(2, "0")];
+  }
+
+  return slot;
+}
+
+function fitTextSize(text, maxWidth, maxHeight, maxSize) {
+  let size = Math.floor(maxSize);
+  while (size >= 8) {
+    ctx.font = `800 ${size}px Consolas, "SFMono-Regular", monospace`;
+    const textWidth = ctx.measureText(text).width;
+    if (textWidth <= maxWidth && size <= maxHeight) {
+      return size;
+    }
+    size -= 1;
+  }
+
+  return 0;
+}
+
+function shouldDrawCellText(cell) {
+  const area = cell.w * cell.h;
+  const viewportArea = Math.max(1, width * height);
+  const largeEnough = area / viewportArea > 0.006 || Math.min(cell.w, cell.h) > 58;
+
+  return largeEnough && sr(cell.key, 233) > 0.54;
+}
+
+function cellTextAlpha(cell) {
+  const minSide = Math.min(cell.w, cell.h);
+  const areaRatio = (cell.w * cell.h) / Math.max(1, width * height);
+  const sideAlpha = smoothstep(30, 86, minSide);
+  const areaAlpha = smoothstep(0.004, 0.018, areaRatio);
+
+  return clamp(Math.max(sideAlpha, areaAlpha), 0, 1);
+}
+
+function drawCellText(cell, now, labelCounts) {
+  const minSide = Math.min(cell.w, cell.h);
+  if (cell.w < 54 || cell.h < 24 || minSide < 20 || !shouldDrawCellText(cell)) {
+    return;
+  }
+
+  const alpha = cellTextAlpha(cell);
+  if (alpha <= 0.02) {
+    return;
+  }
+
+  const color = testsrcColor(cell);
+  const pad = clamp(minSide * 0.12, 6, 22);
+  const lines = rhythmCellLines(cell, now);
+  const label = lines[0];
+  const text = `${lines[0]} ${lines[1]}`;
+
+  if ((labelCounts[label] || 0) >= 3) {
+    return;
+  }
+
+  const maxSize = Math.min(minSide * 0.34, cell.w * 0.19, 48);
+  const size = fitTextSize(text, Math.max(0, cell.w - pad * 2), Math.max(0, cell.h - pad * 2), maxSize);
+
+  if (size <= 0) {
+    return;
+  }
+
+  labelCounts[label] = (labelCounts[label] || 0) + 1;
+
+  ctx.save();
+  ctx.fillStyle = textColorForFill(color);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `800 ${size}px Consolas, "SFMono-Regular", monospace`;
+  ctx.globalAlpha = 0.88 * alpha;
+
+  const x = cell.x + cell.w * 0.5;
+  const y = cell.y + cell.h * 0.5;
+  ctx.fillText(text, x, y);
   ctx.restore();
+}
+
+function drawCells(time, now) {
+  ctx.save();
+  for (let i = 0; i < cells.length; i += 1) {
+    const cell = cells[i];
+    const color = testsrcColor(cell);
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = color;
+    ctx.fillRect(cell.x - 0.5, cell.y - 0.5, Math.max(0, cell.w + 1), Math.max(0, cell.h + 1));
+  }
+  ctx.restore();
+
+  const labelCounts = {};
+  for (let i = 0; i < cells.length; i += 1) {
+    drawCellText(cells[i], now, labelCounts);
+  }
 }
 
 function render(now) {
@@ -515,7 +680,7 @@ function render(now) {
   updatePoints(time, now);
   buildCells(now);
   drawBackground();
-  drawCells(time);
+  drawCells(time, now);
 
   cellCount.textContent = `${cells.length} cells`;
   fpsReadout.textContent = `${Math.round(fpsSmooth)} fps`;
@@ -649,7 +814,39 @@ function handleRhythmPointerMove(event) {
   }
 }
 
-[pointInput, minSizeInput, irregularityInput].forEach((input) => {
+function isTypingTarget(element) {
+  return element?.matches?.("input, select, textarea, button, [contenteditable='true']");
+}
+
+async function toggleFullscreen() {
+  if (!document.fullscreenEnabled) {
+    return;
+  }
+
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
+    return;
+  }
+
+  await document.documentElement.requestFullscreen();
+}
+
+function handleKeydown(event) {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    return;
+  }
+
+  if (isTypingTarget(event.target)) {
+    return;
+  }
+
+  if (event.key.toLowerCase() === "f") {
+    event.preventDefault();
+    toggleFullscreen().catch(() => {});
+  }
+}
+
+[pointInput, minSizeInput, irregularityInput, motionInput, speedInput].forEach((input) => {
   input.addEventListener("input", () => {
     const previousPointCount = settings.points;
     updateSettingsFromInputs();
@@ -667,11 +864,14 @@ resetButton.addEventListener("click", () => {
 playPauseButton.addEventListener("click", async () => {
   const audioContext = metronome.ensureAudio();
   await audioContext.resume();
+  const now = performance.now();
+  beginPointTransition(now);
+  beginSplitTransition(now);
 
   if (rhythm.running) {
     metronome.pause();
   } else {
-    metronome.start(performance.now());
+    metronome.start(now);
   }
 
   setTransportText();
@@ -684,6 +884,8 @@ rhythmResetButton.addEventListener("click", () => {
   metronome.pause();
   metronome.reset(performance.now());
   beatEnergy = 0;
+  pointTransition = null;
+  splitTransition = null;
   setTransportText();
   updateRhythmReadout();
   showRhythmPanel(0);
@@ -727,6 +929,7 @@ clickVolumeInput.addEventListener("input", () => {
 });
 
 window.addEventListener("resize", resize);
+document.addEventListener("keydown", handleKeydown);
 document.addEventListener("pointerdown", handleRhythmPointerDown);
 document.addEventListener("pointermove", handleRhythmPointerMove);
 

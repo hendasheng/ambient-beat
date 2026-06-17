@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Recursive Cells v0.1</title>
+  <title>Recursive Cells v0.2</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="app" aria-label="Recursive Cells v0.1">
+  <main class="app" aria-label="Recursive Cells v0.2">
     <canvas id="stage"></canvas>
 
     <section class="hud" aria-label="Recursive Cells controls">
       <div class="identity">
         <a class="back-link" href="../index.html">Recursive Cells</a>
-        <span class="version">v0.1 Dynamic Cut</span>
+        <span class="version">v0.2 Testsrc Cells</span>
       </div>
 
       <div class="readout">
@@ -37,6 +37,18 @@
         <span>Irregularity</span>
         <input id="irregularityInput" type="range" min="0" max="100" value="62" />
         <output id="irregularityValue">0.62</output>
+      </label>
+
+      <label>
+        <span>Motion</span>
+        <input id="motionInput" type="range" min="0" max="100" value="45" />
+        <output id="motionValue">0.45</output>
+      </label>
+
+      <label>
+        <span>Speed</span>
+        <input id="speedInput" type="range" min="0" max="120" value="20" />
+        <output id="speedValue">0.20</output>
       </label>
 
       <button id="resetButton" type="button">Reset Seed</button>
