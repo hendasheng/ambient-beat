@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recursive Cells</title>
+  <style>
+    :root {
+      --bg: #eef1f0;
+      --paper: rgba(250, 251, 249, 0.88);
+      --ink: #171717;
+      --muted: #6a6a63;
+      --line: rgba(23, 23, 23, 0.12);
+      --accent: #256f58;
+      --shadow: 0 18px 42px rgba(22, 30, 28, 0.13);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: var(--ink);
+      background: linear-gradient(150deg, #f8faf8 0%, var(--bg) 56%, #dfe8e3 100%);
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    main {
+      width: min(980px, 100%);
+      margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 22px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .back-link::before {
+      content: "<";
+      line-height: 1;
+    }
+
+    .hero { margin-bottom: 28px; }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #77746a;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 6vw, 56px);
+      line-height: 1;
+      font-weight: 720;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.72;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      min-height: 100%;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .version {
+      display: inline-flex;
+      justify-self: start;
+      max-width: 100%;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(37, 111, 88, 0.12);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .project-name {
+      margin: 10px 0 6px;
+      font-size: 24px;
+      line-height: 1.12;
+      font-weight: 680;
+    }
+
+    .meta {
+      margin: 0 0 14px;
+      color: #6f7c75;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .desc {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .link::after {
+      content: "->";
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back-link" href="../../index.html">Ambient Beat</a>
+
+    <section class="hero">
+      <p class="eyebrow">Project Versions</p>
+      <h1>Recursive Cells</h1>
+      <p class="subtitle">一个把 Houdini 递归 cell 切割逻辑迁移到 Canvas2D 的动态黑白视觉实验。静态 rest 点决定切割结构，运动点推动显示边界，让矩形分区持续呼吸。</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <span class="version">v0.1 Dynamic Cut</span>
+        <h2 class="project-name">recursive_cells_0.1</h2>
+        <p class="meta">Canvas2D | Recursive Split | Motion Field</p>
+        <p class="desc">建立动态递归切割本体：稳定 rest 空间控制拓扑，运动点推动切割线，安全限制避免重叠、反向和压扁，画面保持黑白线框与块面。</p>
+        <a class="link" href="./recursive_cells_0.1/index.html">进入 v0.1</a>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

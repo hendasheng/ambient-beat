@@ -16,7 +16,6 @@ Ambient Beat 是一个基于 Web Audio 与实时视觉的开源节拍器实验�
 - `CONTRIBUTING.md`：给人类合作者看的贡献说明。
 - `AGENTS.md`：给 AI / 编码助手看的协作提示。
 - `projects/`：所有具体项目的父目录。
-- `shared/`：跨项目复用的静态资源和功能模块，例如统一节拍器核心。
 - `projects/pingpong_topdown/`：PingPong Topdown 项目根目录。
 - `projects/pingpong_topdown/index.html`：PingPong 项目的版本入口。
 
@@ -41,7 +40,6 @@ workflow 会复制以下内容到部署 artifact：
 - `index.html`
 - `.nojekyll`
 - `projects/`
-- `shared/`
 
 如果新增的公开静态资源不在这些路径里，需要同步更新 workflow。
 
