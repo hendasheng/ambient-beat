@@ -6,16 +6,19 @@ Recursive Cells 是 Ambient Beat 中的动态递归切割视觉实验。
 
 v0.1 使用原生 Canvas2D 实现黑白版本。画面从整个 viewport 开始递归二分，切割方向优先选择更长边，切割位置带有可控 irregularity；每条显示切线会读取附近运动点的偏移，并通过安全限制避免重叠、反向和过度压扁。当前版本已接入共享节拍器：播放时每个 beat 都会生成不同的运动目标姿态，切割线在节拍之间以急入缓出的曲线过渡；同时显示切割比例会按绝对 beat / bar 推进到新的持久目标，让 cell 面积分布持续演化，而不是在每拍后回到同一套分割。v0.1 的视觉记录为：黑底白线、递归铺满屏幕、只绘制内部 cell 边线、无外边框、左上参数面板与底部节拍面板同步显示和隐藏。
 
-v0.2 在 v0.1 的全屏递归切割基础上引入 FFmpeg `testsrc` 风格配色。cell 使用白、黄、青、绿、品红、红、蓝、黑和灰阶组成的测试图卡色块，色块之间不额外绘制白色或黑色边线，而是像测试图卡一样用硬边色面直接相接。较大的递归块会稀疏显示单行节拍和结构信息，例如 `BPM 92`、`BEAT 1/4`、`BAR 001`、`PH 0.314`；文本尺寸会根据 cell 宽高动态 fit，接近最小可读尺寸时先降低透明度再消失，每类信息每帧最多出现 3 次。左上参数面板按结构到运动预览排列：Points、Min Size、Irregularity、Motion、Speed、Reset Seed，其中 Motion / Speed 主要用于未启动节拍时的自由预览状态，默认值为 Motion 0.45、Speed 0.20。Start / Pause 保持 metronome 节拍时钟干净，只对点位和切割分布做短暂视觉过渡，避免递归分布像被刷新。`F` 快捷键用于切换 fullscreen，表单控件聚焦时不会触发。
+v0.2 在 v0.1 的全屏递归切割基础上引入 FFmpeg `testsrc` 风格配色。色块之间不额外绘制白色或黑色边线，而是像测试图卡一样用硬边色面直接相接。v0.2 还加入稀疏单行 cell 内节拍信息、动态 fit 文本、自由预览用 Motion / Speed、Start / Pause 短视觉过渡，以及 `F` fullscreen。
+
+v0.3 以 v0.2 之后的当前实验状态作为新主版本，进一步加强 signal monitor / testsrc 工程感：浅层 cell 更接近白、黄、青、绿、品红、红、蓝、黑的标准彩条顺序，部分中层 cell 使用灰阶 ramp；较大的递归块会稀疏显示单行节拍和工程信息，例如 `BPM 92`、`BEAT 1/4`、`BAR 001`、`PH 0.314`、`TC 00:01:08`、`FPS 60`、`SIG LOCK`；文本尺寸会根据 cell 宽高连续动态 fit，接近最小可读尺寸时先降低透明度再消失，每类信息每帧最多出现 3 次。少量大 cell 会显示短准星或角 tick，作为工程校准标记，但不形成连续边框。左上参数面板按 Structure、Preview、Camera 分组排列：Structure 控制 Points、Min Size、Irregularity 和 Reset Seed；Preview 控制未启动节拍时的 Motion / Speed，自由预览默认值为 Motion 0.45、Speed 0.20；Camera 可开启 / 关闭摄像头并选择摄像机源，采集画面会以 cover 模式绘制到一个带粘性的承载 cell 中，只有当前承载 cell 消失或缩小到阈值以下时才切换到当前最大的 cell，避免画面闪烁。Start / Pause 保持 metronome 节拍时钟干净，只对点位和切割分布做短暂视觉过渡，避免递归分布像被刷新。`F` 快捷键用于切换 fullscreen，表单控件聚焦时不会触发。
 
 ## Versions
 
-- [recursive_cells_0.2](./recursive_cells_0.2/)：当前主版本。以 v0.1 当前状态为基础，加入 FFmpeg testsrc 风格测试色块、稀疏单行 cell 内节拍信息、动态 fit 文本、自由预览用 Motion / Speed、Start / Pause 短视觉过渡，以及 `F` fullscreen。
+- [recursive_cells_0.3](./recursive_cells_0.3/)：当前主版本。以 v0.2 之后的实验状态为基础，加强 FFmpeg testsrc / signal monitor 风格，包含规则彩条、灰阶 ramp、稀疏工程字段、动态 fit 文本、少量校准标记，以及可选摄像头输入。
+- [recursive_cells_0.2](./recursive_cells_0.2/)：建立 FFmpeg testsrc 风格测试色块、稀疏单行 cell 内节拍信息、动态 fit 文本、自由预览用 Motion / Speed、Start / Pause 短视觉过渡，以及 `F` fullscreen。
 - [recursive_cells_0.1](./recursive_cells_0.1/)：建立动态黑白递归切割，包含 point count、min size、irregularity、reset seed、beat / bar 级切割比例推进、全屏内部边线绘制、同步隐藏控制面板，以及 Tempo、Meter、Rhythm、Count In、Click Volume、Start 和 Reset 控制。
 
 ## 设计方向
 
-- v0.1 保持黑白、线框、块面为主的视觉语言；v0.2 使用 FFmpeg testsrc 风格的高饱和测试色块。
+- v0.1 保持黑白、线框、块面为主的视觉语言；v0.2 使用 FFmpeg testsrc 风格的高饱和测试色块；v0.3 继续向 signal monitor / 工程测试图卡方向推进。
 - 拓扑稳定，运动来自显示边界的局部推拉。
 - 使用统一节拍器语义，让递归运动和乐句级切割分布跟随 Tempo / Meter / Rhythm。
 - 后续可以继续调整拍点脉冲的视觉力度，或把节拍分层映射到不同深度的 cell。

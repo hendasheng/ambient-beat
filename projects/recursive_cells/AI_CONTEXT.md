@@ -4,7 +4,7 @@
 
 ## 项目定位
 
-`Recursive Cells` 是 `ambient-beat` 仓库里的一个新视觉实验项目，当前主版本是 `v0.2`。
+`Recursive Cells` 是 `ambient-beat` 仓库里的一个新视觉实验项目，当前主版本是 `v0.3`。
 
 目标是把 Houdini 中 `set_recursive_cells` 的递归矩形切割逻辑迁移到 Web 页面里，先做一个动态黑白版本。它不是完整复制 Houdini 网络，而是复刻核心机制：
 
@@ -15,7 +15,7 @@
 - 当前版本已接入 `shared/metronome/metronome.js`，播放时递归动态跟随 Tempo / Meter / Rhythm，并在 beat 上产生切线脉冲。
 - 显示切割比例会按绝对 beat / bar 推进到新的持久目标，避免画面长期停留在同一套面积分布，或每拍后回到初始分割。
 
-视觉方向：v0.1 是黑底、白线、黑白块面、监视器式 UI；v0.2 转为 FFmpeg `testsrc` 风格测试色块，不做彩色 Mondrian。
+视觉方向：v0.1 是黑底、白线、黑白块面、监视器式 UI；v0.2 转为 FFmpeg `testsrc` 风格测试色块；v0.3 继续加强 signal monitor / 工程测试图卡感，不做彩色 Mondrian。
 
 ## 仓库约定
 
@@ -41,7 +41,11 @@ projects/recursive_cells/
 │   ├── index.html
 │   ├── sketch.js
 │   └── style.css
-└── recursive_cells_0.2/
+├── recursive_cells_0.2/
+│   ├── index.html
+│   ├── sketch.js
+│   └── style.css
+└── recursive_cells_0.3/
     ├── index.html
     ├── sketch.js
     └── style.css
@@ -58,21 +62,25 @@ AGENTS.md
 
 注意：当前工作区里 `AGENTS.md` 可能已有用户自己的修改。不要回滚不属于你的改动。
 
-## 当前主版本 v0.2
+## 当前主版本 v0.3
 
 入口：
 
 ```text
-projects/recursive_cells/recursive_cells_0.2/index.html
+projects/recursive_cells/recursive_cells_0.3/index.html
 ```
 
-v0.2 已从 v0.1 当前状态复制为新迭代基线，并加入 FFmpeg `testsrc` 风格配色。cell 使用白、黄、青、绿、品红、红、蓝、黑和灰阶测试色块。色块之间不额外绘制白色或黑色边线，应像测试图卡一样用硬边色面直接相接。
+v0.3 已从 v0.2 之后的当前实验状态复制为新主版本，并加强 FFmpeg `testsrc` / signal monitor 工程感。浅层 cell 更接近白、黄、青、绿、品红、红、蓝、黑的标准彩条顺序；部分中层 cell 使用灰阶 ramp。色块之间不额外绘制白色或黑色边线，应像测试图卡一样用硬边色面直接相接。
 
-v0.2 较大的递归块会稀疏显示单行节拍 / 结构信息，例如 `BPM 92`、`BEAT 1/4`、`BAR 001`、`PH 0.314`。文本尺寸必须根据 cell 宽高动态 fit，接近最小可读尺寸时用 `cellTextAlpha()` 先降低透明度再消失；每类信息每帧最多出现 3 次，不要让每个 cell 都有内容。
+v0.3 较大的递归块会稀疏显示单行节拍 / 工程 / 结构信息，例如 `BPM 92`、`BEAT 1/4`、`BAR 001`、`PH 0.314`、`TC 00:01:08`、`FPS 60`、`SIG LOCK`。文本尺寸必须根据 cell 宽高连续动态 fit，接近最小可读尺寸时用 `cellTextAlpha()` 先降低透明度再消失；每类信息每帧最多出现 3 次，不要让每个 cell 都有内容。
 
-v0.2 左上参数面板按结构到运动预览排列：`Points / Min Size / Irregularity / Motion / Speed / Reset Seed`。`Motion` 和 `Speed` 主要用于未启动节拍时的自由预览，不要再当作无效控件删除。默认值为 Motion `0.45`、Speed `0.20`。
+v0.3 少量大 cell 可以显示短准星或角 tick 作为工程校准标记，但不要形成连续边框，也不要让标记密度高到破坏 testsrc 硬边色块。
 
-Start / Pause 不应刷新递归分布，也不能打乱 metronome 节拍。v0.2 不给 beat clock 叠全局 offset；只用 `beginPointTransition()` 和 `beginSplitTransition()` 在切换瞬间做短暂视觉过渡。
+v0.3 左上参数面板按 `Structure / Preview / Camera` 分组排列。`Structure` 包含 `Points / Min Size / Irregularity / Reset Seed`；`Preview` 包含 `Motion / Speed`，主要用于未启动节拍时的自由预览，不要再当作无效控件删除，默认值为 Motion `0.45`、Speed `0.20`；`Camera` 包含摄像头开启 / 关闭、摄像机源选择和状态文本。
+
+Camera 开启后使用 `getUserMedia()` 采集视频，并以 cover 模式绘制到一个承载 cell 中。承载 cell 通过 `videoCellKey` 保持粘性：只要当前 cell 还存在且没有小到阈值以下，就继续跟随这个 cell 的动态尺寸；只有当前 cell 消失或过小时才重新选择当前最大的 cell，避免视频在画面中每帧跳动闪烁。
+
+Start / Pause 不应刷新递归分布，也不能打乱 metronome 节拍。v0.3 不给 beat clock 叠全局 offset；只用 `beginPointTransition()` 和 `beginSplitTransition()` 在切换瞬间做短暂视觉过渡。
 
 `F` 快捷键切换 fullscreen。实现应避开 `input / select / textarea / button / contenteditable` 聚焦状态，避免用户调控件时误触发。
 
@@ -190,9 +198,11 @@ Start / Pause 不能通过修改 `beatClock()`、`musicalBeat()` 或全局 clock
 - 遍历叶子 cells。
 - v0.1 部分 cell 以 seeded random 填白块，所有 cell 画白色 stroke。
 - v0.2 使用 `testsrcPalette` 为每个 cell 分配测试图卡色块。
-- v0.2 不绘制内部白色 / 黑色 stroke；相邻 cell 依靠硬边色面区分。
-- v0.2 在足够大的 cell 中绘制单行文本，使用 `fitTextSize()` 根据 cell 尺寸收缩字号。
+- v0.3 浅层 cell 使用 `testsrcBars` 的标准彩条顺序，部分中层 cell 使用 `grayRamp`。
+- v0.2 起不绘制内部白色 / 黑色 stroke；相邻 cell 依靠硬边色面区分。
+- v0.3 在足够大的 cell 中绘制单行文本，使用 `fitTextSize()` 根据 cell 尺寸连续计算小数字号，避免整数 px 级跳变。
 - 文本由 `shouldDrawCellText()` 和 label 计数控制密度，每类信息每帧最多出现 3 次；由 `cellTextAlpha()` 根据 cell 尺寸渐隐，避免突然消失。
+- `drawCalibrationMark()` 只为少量大 cell 绘制短准星 / 角 tick，不画连续边框。
 
 当前版本不绘制背景网格和控制点，只绘制递归切割本体。
 
@@ -210,6 +220,7 @@ Start / Pause 不能通过修改 `beatClock()`、`musicalBeat()` 或全局 clock
 - 增加 `F` fullscreen 快捷键，表单控件聚焦时不触发。
 - 去掉 v0.2 的内部黑 / 白描边，改为 testsrc 式硬边色块相接。
 - 增加稀疏单行 cell 内节拍 / 结构信息，字号跟随 cell 尺寸动态 fit，每类信息最多出现 3 次。
+- 新增 `recursive_cells_0.3` 作为当前主版本，加强 testsrc 工程感：浅层规则彩条、少量灰阶 ramp、稀疏工程字段、少量校准准星 / 角 tick。
 - 左上参数面板与底部节拍面板同步显示 / 隐藏。
 - 去掉背景网格和点场，只保留递归切割本体。
 - 递归切割铺满整个屏幕，绘制时只画内部 cell 边线，不画外边框。
@@ -230,7 +241,7 @@ Browser is not available: iab
 - 如果接手后可以使用浏览器工具，应打开以下页面检查：
 
 ```text
-projects/recursive_cells/recursive_cells_0.2/index.html
+projects/recursive_cells/recursive_cells_0.3/index.html
 ```
 
 检查重点：
@@ -255,11 +266,11 @@ projects/recursive_cells/recursive_cells_0.2/index.html
 2. 增加一个隐藏点显示的开关，让画面可以更接近纯切割图形。
 3. 增加导出 PNG 或录制提示。
 4. 继续调拍点脉冲的视觉力度，或把不同 cell 深度映射到不同 Rhythm 分层。
-5. 后续继续 v0.2 时围绕 testsrc 风格深化，先等用户给明确方向，不要猜测新功能。
+5. 后续继续 v0.3 时围绕 testsrc / signal monitor 风格深化，先等用户给明确方向，不要猜测新功能。
 
 ## 风格注意
 
-- v0.1 保持黑白，不要默认加彩色渐变；v0.2 使用 testsrc 测试色块，不要改成普通渐变或彩色 Mondrian。
+- v0.1 保持黑白，不要默认加彩色渐变；v0.2 / v0.3 使用 testsrc 测试色块，不要改成普通渐变或彩色 Mondrian。
 - 不要把根首页变成版本页。
 - 不要删除或回滚用户已有改动。
 - 如果修改 README 中文内容，同步检查 `README_EN.md`。
