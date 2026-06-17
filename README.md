@@ -20,7 +20,7 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 ## Projects
 
 - [Beat Sync Monitor](./projects/beat_sync_monitor/)：借用 avsynctest 的测试画面语言，用居中的节奏模块、动态数据矩阵、点击说明浮层和隐藏式节拍控制面板观察实时同步状态，当前主版本为 v0.1。
-- [Recursive Cells](./projects/recursive_cells/)：动态黑白递归切割实验，用静态 rest 点稳定切割拓扑，再用运动点推动显示边界，当前主版本为 v0.1。
+- [Recursive Cells](./projects/recursive_cells/)：动态黑白递归切割实验，用静态 rest 点稳定切割拓扑，再用共享节拍器驱动运动点和拍点脉冲，当前主版本为 v0.1。
 - [PingPong Topdown](./projects/pingpong_topdown/)：俯视视角下的极简乒乓球回合轨迹视觉项目，当前主版本为 v0.4。
 
 ## Structure

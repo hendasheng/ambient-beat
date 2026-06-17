@@ -12,6 +12,7 @@
 - 当前运动点推动最终显示边界。
 - cell 的父子结构保持稳定，不随动画每帧重建成不同拓扑。
 - 显示切线有安全限制，避免重叠、反向、压扁。
+- 当前版本已接入 `shared/metronome/metronome.js`，播放时递归动态跟随 Tempo / Meter / Rhythm，并在 beat 上产生切线脉冲。
 
 视觉方向：黑底、白线、黑白块面、监视器式 UI，不做彩色 Mondrian。
 
@@ -64,7 +65,7 @@ projects/recursive_cells/recursive_cells_0.1/index.html
 
 - 原生 `Canvas2D`
 - 无构建步骤
-- 无外部依赖
+- 依赖仓库内 `shared/metronome/metronome.js`
 - 直接用 VS Code Live Server 或浏览器打开静态页面即可
 
 当前控件：
@@ -73,8 +74,9 @@ projects/recursive_cells/recursive_cells_0.1/index.html
 - `Min Size`：控制递归切割的最小 cell 尺寸。
 - `Motion`：控制运动点对显示切线的推动强度。
 - `Irregularity`：控制切割位置偏离中心的随机程度。
-- `Speed`：控制点运动速度。
+- `Speed`：控制点运动速度；播放时会按 Rhythm 倍率影响每拍目标姿态的推进速度。
 - `Reset Seed`：换一组随机点和切割种子。
+- `Tempo / Meter / Rhythm / Count In / Click Volume / Start / Reset`：共享节拍器控制。未播放时底部面板常驻，播放后自动隐藏，靠近底部或点击画面显示。
 
 HUD 中还显示：
 
@@ -99,7 +101,7 @@ projects/recursive_cells/recursive_cells_0.1/sketch.js
 - `freqX / freqZ`
 - `amp`
 
-`updatePoints(time)` 每帧更新 `curX / curZ`，但不改变 `restX / restZ`。
+`updatePoints(time, now)` 每帧更新 `curX / curZ`，但不改变 `restX / restZ`。暂停时使用自由时间预览；播放时使用 shared metronome 的 beat clock，通过 `beatPose()` 为每个 beat 生成不同的确定性目标姿态，并在当前 beat 和下一 beat 的姿态之间插值。每个 beat 会写入 `beatEnergy`，短时间明显增强运动幅度和 `safeSplit()` 里的切线偏移；第 1 拍会比普通拍更强。
 
 ### 2. 递归切割
 
@@ -162,10 +164,7 @@ projects/recursive_cells/recursive_cells_0.1/sketch.js
 - 所有 cell 画白色 stroke。
 - 保持黑白视觉，不引入彩色。
 
-`drawRestPoints()`：
-
-- 以低透明度绘制当前运动点，便于观察控制场。
-- 如果后续想做更纯视觉版，可以隐藏或加开关。
+当前版本不绘制背景网格和控制点，只绘制递归切割本体。
 
 ## 已完成
 
@@ -173,6 +172,8 @@ projects/recursive_cells/recursive_cells_0.1/sketch.js
 - 新增 `recursive_cells_0.1` 版本。
 - 新增项目版本入口页。
 - 新增项目 README。
+- 接入共享节拍器，底部 rhythm panel 提供 Tempo / Meter / Rhythm / Count In / Click Volume / Start / Reset。
+- 去掉背景网格和点场，只保留递归切割本体。
 - 根首页已增加 Recursive Cells 卡片。
 - 中文 README / 英文 README 已加入项目说明和目录树。
 - `node --check projects\recursive_cells\recursive_cells_0.1\sketch.js` 已通过。
@@ -209,8 +210,8 @@ projects/recursive_cells/recursive_cells_0.1/index.html
 1. 浏览器视觉 QA，修正布局、比例、性能问题。
 2. 增加一个隐藏点显示的开关，让画面可以更接近纯切割图形。
 3. 增加导出 PNG 或录制提示。
-4. 将运动接入 `shared/metronome/metronome.js` 或统一节拍器模型，让切割线在拍点上脉冲。
-5. 做 `v0.2` 时再考虑彩色、音频、节拍联动，不要把 0.1 变复杂。
+4. 继续调拍点脉冲的视觉力度，或把不同 cell 深度映射到不同 Rhythm 分层。
+5. 做 `v0.2` 时再考虑彩色或更复杂的音频响应，不要把 0.1 变成多主题版本。
 
 ## 风格注意
 
