@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Beat Sync Monitor 0.1</title>
   <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="../../../shared/metronome/metronome-panel.css" />
 </head>
 <body>
   <main class="app">
@@ -71,9 +72,14 @@
       </div>
 
       <div class="transport-bar">
+        <label for="offbeatInput" class="offbeat-control">
+          <span class="label">Offbeat</span>
+          <input id="offbeatInput" type="checkbox" />
+        </label>
         <label for="clickVolumeInput" class="volume-control">
-          <span class="label" id="clickVolumeLabel">Click 55%</span>
+          <span class="label">Click</span>
           <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="55" />
+          <span class="volume-value" id="clickVolumeLabel">55%</span>
         </label>
         <div class="transport-controls">
           <button id="playPauseButton" type="button">Start</button>

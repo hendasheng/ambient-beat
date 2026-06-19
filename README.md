@@ -10,7 +10,7 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
 根目录首页是给 GitHub Pages 访客使用的项目入口，项目卡片会直接进入当前主版本；每个具体项目在 `projects/` 下维护自己的版本列表、文档和演进记录。
 
-节拍器相关项目尽量沿用统一控制模型：Tempo、Meter、Rhythm、Count In、Click Volume、Start 和 Reset，以及播放后自动隐藏的底部控制面板。
+节拍器相关项目尽量沿用统一控制模型：Tempo、Meter、Rhythm、Count In、Offbeat、Click Volume、Start 和 Reset，以及播放后自动隐藏的底部控制面板。
 
 ## 参与贡献
 
@@ -19,7 +19,7 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 
 ## Projects
 
-- [Beat Sync Monitor](./projects/beat_sync_monitor/)：借用 avsynctest 的测试画面语言，用居中的节奏模块、动态数据矩阵、点击说明浮层和隐藏式节拍控制面板观察实时同步状态，当前主版本为 v0.1。
+- [Beat Sync Monitor](./projects/beat_sync_monitor/)：借用 avsynctest 的测试画面语言，用居中的节奏模块、动态数据矩阵、摄像头采集层、点击说明浮层和隐藏式节拍控制面板观察实时同步状态，当前主版本为 v0.2。
 - [Recursive Cells](./projects/recursive_cells/)：动态递归切割实验，用静态 rest 点稳定切割拓扑，再用共享节拍器驱动运动点和切割分布；当前主版本 v0.3 加强 FFmpeg testsrc / signal monitor 风格，并支持把摄像头画面放入带粘性的最大递归 cell。
 - [PingPong Topdown](./projects/pingpong_topdown/)：俯视视角下的极简乒乓球回合轨迹视觉项目，当前主版本为 v0.4。
 
@@ -34,12 +34,14 @@ GitHub Pages: https://hendasheng.github.io/ambient-beat/
 ├── AGENTS.md
 ├── shared/
 │   └── metronome/
-│       └── metronome.js
+│       ├── metronome.js
+│       └── metronome-panel.css
 └── projects/
     ├── beat_sync_monitor/
         ├── index.html
         ├── README.md
-        └── beat_sync_monitor_0.1/
+        ├── beat_sync_monitor_0.1/
+        └── beat_sync_monitor_0.2/
             ├── index.html
             ├── sketch.js
             └── style.css
@@ -91,7 +93,7 @@ ipconfig
 
 ```text
 http://192.168.1.23:5500/
-http://192.168.1.23:5500/projects/beat_sync_monitor/beat_sync_monitor_0.1/
+http://192.168.1.23:5500/projects/beat_sync_monitor/beat_sync_monitor_0.2/
 http://192.168.1.23:5500/projects/pingpong_topdown/pingpong_topdown_0.4/
 ```
 

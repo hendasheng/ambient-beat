@@ -1,0 +1,149 @@
+.offbeat-control,
+.volume-control {
+  display: grid;
+  gap: var(--metronome-control-gap, 6px);
+  min-width: 0;
+}
+
+.offbeat-control {
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-self: start;
+  justify-content: start;
+  width: max-content;
+  opacity: var(--metronome-secondary-opacity, 1);
+}
+
+.offbeat-control input {
+  width: 16px;
+  min-width: 0;
+  height: 16px;
+  padding: 0;
+  accent-color: var(--metronome-accent, #ffffff);
+}
+
+.transport-bar {
+  display: grid;
+  grid-template-columns: max-content 220px minmax(132px, 1fr);
+  gap: 16px;
+  align-items: center;
+  min-width: 0;
+  padding-top: 5px;
+  border-top: 1px solid var(--metronome-divider, rgba(255, 255, 255, 0.1));
+}
+
+.volume-control {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  width: 220px;
+  opacity: var(--metronome-secondary-opacity, 1);
+}
+
+.volume-control .label {
+  white-space: nowrap;
+}
+
+.volume-value {
+  min-width: 4ch;
+  color: var(--metronome-muted, rgba(255, 255, 255, 0.56));
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.volume-control input {
+  width: 100%;
+  min-width: 0;
+  height: var(--metronome-field-height, 28px);
+  border: 1px solid var(--metronome-field-border, rgba(255, 255, 255, 0.2));
+  border-radius: 6px;
+  background: var(--metronome-field-bg, rgba(255, 255, 255, 0.08));
+  color: var(--metronome-text, rgba(255, 255, 255, 0.92));
+  font-size: var(--metronome-field-font-size, 12px);
+  font-weight: var(--metronome-field-font-weight, 750);
+  padding: 0;
+  accent-color: var(--metronome-accent, #ffffff);
+}
+
+.transport-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  justify-self: end;
+  width: 132px;
+  min-width: 0;
+}
+
+.transport-controls button {
+  height: var(--metronome-button-height, 28px);
+  min-width: 0;
+  border: 1px solid var(--metronome-button-border, rgba(255, 255, 255, 0.22));
+  border-radius: 6px;
+  background: var(--metronome-button-bg, rgba(255, 255, 255, 0.08));
+  color: var(--metronome-text, rgba(255, 255, 255, 0.92));
+  font-size: 11px;
+  font-weight: var(--metronome-button-font-weight, 800);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.transport-controls button:first-child {
+  border-color: var(--metronome-primary-border, #ffffff);
+  background: var(--metronome-primary-bg, #ffffff);
+  color: var(--metronome-primary-text, #030303);
+}
+
+.transport-controls button:hover,
+.volume-control input:hover {
+  border-color: var(--metronome-hover-border, rgba(255, 255, 255, 0.36));
+  background: var(--metronome-hover-bg, rgba(255, 255, 255, 0.14));
+}
+
+.transport-controls button:first-child:hover {
+  background: var(--metronome-primary-hover-bg, rgba(255, 255, 255, 0.82));
+  color: var(--metronome-primary-text, #030303);
+}
+
+.offbeat-control input:focus-visible,
+.volume-control input:focus-visible,
+.transport-controls button:focus-visible {
+  outline: 2px solid var(--metronome-focus, rgba(255, 255, 255, 0.72));
+  outline-offset: 2px;
+}
+
+@media (max-width: 680px) {
+  .transport-bar {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+    padding-top: 6px;
+  }
+
+  .transport-controls {
+    justify-self: stretch;
+    width: auto;
+  }
+
+  .volume-control {
+    justify-self: stretch;
+    width: auto;
+  }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .transport-bar {
+    grid-template-columns: max-content minmax(0, 1fr) 132px;
+    gap: 7px;
+    justify-content: stretch;
+    padding-top: 5px;
+  }
+
+  .transport-controls button {
+    height: 32px;
+  }
+
+  .transport-controls {
+    width: auto;
+  }
+}

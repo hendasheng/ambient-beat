@@ -266,6 +266,13 @@ body.rhythm-pinned .hud {
   transform: translate(-50%, 12px);
   transition: opacity 220ms ease, transform 260ms ease;
   z-index: 2;
+  --metronome-accent: #ffffff;
+  --metronome-button-height: 28px;
+  --metronome-field-bg: var(--field);
+  --metronome-field-font-size: 12px;
+  --metronome-field-font-weight: 750;
+  --metronome-text: var(--ink);
+  --metronome-primary-text: #030303;
 }
 
 body.rhythm-visible .rhythm-panel,
@@ -308,16 +315,14 @@ body.rhythm-pinned .rhythm-panel {
   min-width: 0;
 }
 
-.control-grid label,
-.volume-control {
+.control-grid label {
   display: grid;
   gap: 4px;
   min-width: 0;
 }
 
 .control-grid input,
-.control-grid select,
-.volume-control input {
+.control-grid select {
   width: 100%;
   min-width: 0;
   height: 28px;
@@ -333,11 +338,6 @@ body.rhythm-pinned .rhythm-panel {
 .control-grid select option {
   background: #101010;
   color: #f7f7f7;
-}
-
-.volume-control input[type="range"] {
-  padding: 0;
-  accent-color: #ffffff;
 }
 
 .beat-group {
@@ -397,60 +397,10 @@ body.rhythm-pinned .rhythm-panel {
   white-space: nowrap;
 }
 
-.transport-bar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 132px;
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-  padding-top: 5px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.volume-control {
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-}
-
-.volume-control .label {
-  white-space: nowrap;
-}
-
-.transport-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.transport-controls button {
-  height: 28px;
-  min-width: 0;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--ink);
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.transport-controls button:first-child {
-  border-color: #ffffff;
-  background: #ffffff;
-  color: #030303;
-}
-
-.transport-controls button:hover,
 .control-grid input:hover,
 .control-grid select:hover {
   border-color: rgba(255, 255, 255, 0.36);
   background: rgba(255, 255, 255, 0.14);
-}
-
-.transport-controls button:first-child:hover {
-  background: rgba(255, 255, 255, 0.82);
-  color: #030303;
 }
 
 @media (max-width: 680px) {
@@ -490,10 +440,6 @@ body.rhythm-pinned .rhythm-panel {
   }
 
   .rhythm-primary {
-    grid-template-columns: 1fr;
-  }
-
-  .transport-bar {
     grid-template-columns: 1fr;
   }
 

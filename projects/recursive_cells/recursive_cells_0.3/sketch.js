@@ -21,6 +21,7 @@ const bpmInput = document.getElementById("bpmInput");
 const meterSelect = document.getElementById("meterSelect");
 const subdivisionSelect = document.getElementById("subdivisionSelect");
 const countInSelect = document.getElementById("countInSelect");
+const offbeatInput = document.getElementById("offbeatInput");
 const clickVolumeInput = document.getElementById("clickVolumeInput");
 const clickVolumeLabel = document.getElementById("clickVolumeLabel");
 const playPauseButton = document.getElementById("playPauseButton");
@@ -89,6 +90,7 @@ const metronome = window.AmbientMetronome.createMetronome({
   beatsPerBar: parseMeter(meterSelect.value),
   subdivision: subdivisionSelect.value,
   countInBars: Number(countInSelect.value),
+  offbeatEnabled: Boolean(offbeatInput?.checked),
   clickVolume: Number(clickVolumeInput.value) / 100,
   onChange: () => updateRhythmReadout(),
   onBeat: (state, accent) => {
@@ -967,7 +969,7 @@ function updateRhythmReadout() {
   const statusText = rhythm.countingIn ? ` · pre ${rhythm.countInBeatsRemaining}` : "";
   setText(tempoLabel, `${rhythm.bpm} BPM`);
   setText(meterLabel, `${rhythm.beatsPerBar}/4 · ${getSubdivisionMode().label} · beat ${beat} · bar ${padBar(rhythm.bar)}${countText}${statusText}`);
-  setText(clickVolumeLabel, `Click ${Math.round(clickVolume() * 100)}%`);
+  setText(clickVolumeLabel, `${Math.round(clickVolume() * 100)}%`);
   renderBeatStrip(beat);
 }
 
@@ -1184,6 +1186,12 @@ subdivisionSelect.addEventListener("change", () => {
 
 countInSelect.addEventListener("change", () => {
   rhythm.countInBars = metronome.setCountInBars(countInSelect.value);
+  updateRhythmReadout();
+  showRhythmPanel(rhythm.running ? 2200 : 0);
+});
+
+offbeatInput?.addEventListener("change", () => {
+  rhythm.offbeatEnabled = metronome.setOffbeatEnabled(offbeatInput.checked);
   updateRhythmReadout();
   showRhythmPanel(rhythm.running ? 2200 : 0);
 });

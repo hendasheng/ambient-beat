@@ -3,6 +3,15 @@
     return Math.min(Math.max(value, min), max);
   }
 
+  const offbeatSound = {
+    type: "triangle",
+    frequency: 740,
+    level: 0.38,
+    attack: 0.003,
+    decay: 0.055,
+    stop: 0.076,
+  };
+
   function createMetronome(options = {}) {
     const state = {
       running: false,
@@ -17,10 +26,12 @@
       bar: 1,
       startAt: performance.now(),
       nextBeatAt: 0,
+      nextOffbeatAt: 0,
       lastBeatAt: performance.now(),
       audioContext: null,
       masterGain: null,
       clickVolume: clamp(Number(options.clickVolume) || 0, 0, 1),
+      offbeatEnabled: Boolean(options.offbeatEnabled),
     };
 
     const onChange = typeof options.onChange === "function" ? options.onChange : null;
@@ -55,7 +66,7 @@
       return state.audioContext;
     }
 
-    function scheduleClick(accent) {
+    function scheduleClick(accent, offbeat = false) {
       if (!state.audioContext || !state.masterGain) {
         return;
       }
@@ -63,18 +74,22 @@
       const now = state.audioContext.currentTime;
       const osc = state.audioContext.createOscillator();
       const gain = state.audioContext.createGain();
-      const frequency = accent ? 1320 : 880;
-      const level = accent ? 0.9 : 0.58;
+      const frequency = offbeat ? offbeatSound.frequency : accent ? 1320 : 880;
+      const level = offbeat ? offbeatSound.level : accent ? 0.9 : 0.58;
 
-      osc.type = "square";
+      osc.type = offbeat ? offbeatSound.type : "square";
       osc.frequency.setValueAtTime(frequency, now);
       gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(level, now + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+      gain.gain.exponentialRampToValueAtTime(level, now + (offbeat ? offbeatSound.attack : 0.004));
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + (offbeat ? offbeatSound.decay : 0.055));
       osc.connect(gain);
       gain.connect(state.masterGain);
       osc.start(now);
-      osc.stop(now + 0.07);
+      osc.stop(now + (offbeat ? offbeatSound.stop : 0.07));
+    }
+
+    function stepOffbeat() {
+      scheduleClick(false, true);
     }
 
     function advanceCountInBeat(now) {
@@ -125,9 +140,18 @@
         return;
       }
 
-      while (now >= state.nextBeatAt) {
+      while (now >= state.nextBeatAt || (state.offbeatEnabled && now >= state.nextOffbeatAt)) {
+        if (state.offbeatEnabled && state.nextOffbeatAt < state.nextBeatAt) {
+          stepOffbeat();
+          state.nextOffbeatAt += intervalMs();
+          continue;
+        }
+
         stepBeat(now);
         state.nextBeatAt += intervalMs();
+        if (state.nextOffbeatAt < state.nextBeatAt - intervalMs() * 0.5) {
+          state.nextOffbeatAt = state.nextBeatAt - intervalMs() * 0.5;
+        }
       }
     }
 
@@ -135,6 +159,7 @@
       state.running = true;
       state.lastBeatAt = now;
       state.nextBeatAt = now + intervalMs();
+      state.nextOffbeatAt = now + intervalMs() * 0.5;
       state.countInTotalBeats = state.countInBars * state.beatsPerBar;
       state.countInBeatsRemaining = state.countInTotalBeats;
       state.countingIn = state.countInTotalBeats > 0;
@@ -166,6 +191,7 @@
       state.lastBeatAt = now;
       state.startAt = now;
       state.nextBeatAt = now;
+      state.nextOffbeatAt = now + intervalMs() * 0.5;
       emitChange();
     }
 
@@ -205,6 +231,18 @@
       return state.clickVolume;
     }
 
+    function setOffbeatEnabled(value) {
+      state.offbeatEnabled = Boolean(value);
+      const now = performance.now();
+      const interval = intervalMs();
+      state.nextOffbeatAt = state.lastBeatAt + interval * 0.5;
+      while (state.running && state.nextOffbeatAt <= now) {
+        state.nextOffbeatAt += interval;
+      }
+      emitChange();
+      return state.offbeatEnabled;
+    }
+
     function beatProgress(now = performance.now()) {
       if (!state.running) {
         return 0;
@@ -229,6 +267,7 @@
       setSubdivision,
       setCountInBars,
       setClickVolume,
+      setOffbeatEnabled,
       beatProgress,
       pulse,
     };

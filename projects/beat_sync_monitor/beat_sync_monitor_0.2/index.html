@@ -3,61 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Recursive Cells v0.3</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Beat Sync Monitor 0.2</title>
+  <link rel="stylesheet" href="./style.css" />
   <link rel="stylesheet" href="../../../shared/metronome/metronome-panel.css" />
 </head>
 <body>
-  <main class="app" aria-label="Recursive Cells v0.3">
-    <canvas id="stage"></canvas>
+  <main class="app">
+    <canvas id="stage" aria-label="Beat sync monitor visualization"></canvas>
 
-    <section class="hud" aria-label="Recursive Cells controls">
+    <div class="data-popover" id="dataPopover" role="status" aria-live="polite" hidden>
+      <div class="data-popover-label" id="dataPopoverLabel"></div>
+      <div class="data-popover-value" id="dataPopoverValue"></div>
+      <div class="data-popover-desc" id="dataPopoverDesc"></div>
+    </div>
+
+    <section class="hud" aria-label="Beat Sync Monitor controls">
       <div class="identity">
-        <a class="back-link" href="../index.html">Recursive Cells</a>
-        <span class="version">v0.3 Signal Cells</span>
-      </div>
-
-      <div class="readout">
-        <span id="cellCount">0 cells</span>
-        <span id="fpsReadout">-- fps</span>
-      </div>
-
-      <div class="hud-section">
-        <span class="section-label">Structure</span>
-        <label>
-          <span>Points</span>
-          <input id="pointInput" type="range" min="60" max="560" value="240" step="10" />
-          <output id="pointValue">240</output>
-        </label>
-
-        <label>
-          <span>Min Size</span>
-          <input id="minSizeInput" type="range" min="10" max="90" value="34" />
-          <output id="minSizeValue">34</output>
-        </label>
-
-        <label>
-          <span>Irregularity</span>
-          <input id="irregularityInput" type="range" min="0" max="100" value="62" />
-          <output id="irregularityValue">0.62</output>
-        </label>
-
-        <button id="resetButton" class="secondary-button" type="button">Reset Seed</button>
-      </div>
-
-      <div class="hud-section">
-        <span class="section-label">Preview</span>
-        <label>
-          <span>Motion</span>
-          <input id="motionInput" type="range" min="0" max="100" value="45" />
-          <output id="motionValue">0.45</output>
-        </label>
-
-        <label>
-          <span>Speed</span>
-          <input id="speedInput" type="range" min="0" max="120" value="20" />
-          <output id="speedValue">0.20</output>
-        </label>
+        <span class="version">v0.2 Camera Sync</span>
       </div>
 
       <div class="hud-section">
@@ -68,18 +30,28 @@
             <option value="">Default camera</option>
           </select>
         </div>
+        <label>
+          <span>Scale</span>
+          <input id="videoScaleInput" type="range" min="24" max="100" value="50" />
+          <output id="videoScaleValue">50%</output>
+        </label>
+        <label>
+          <span>Shade</span>
+          <input id="videoShadeInput" type="range" min="0" max="90" value="20" />
+          <output id="videoShadeValue">20%</output>
+        </label>
         <span id="cameraStatus" class="camera-status">Camera off</span>
       </div>
     </section>
 
     <aside class="rhythm-panel" aria-label="Beat controls">
       <div class="rhythm-primary">
-        <div class="control-group">
+        <div class="control-group timing-group">
           <span class="group-label">Tempo</span>
           <div class="control-grid">
             <label for="bpmInput">
               <span class="label">BPM</span>
-              <input id="bpmInput" type="number" min="40" max="240" step="1" value="92" inputmode="numeric" />
+              <input id="bpmInput" type="number" min="40" max="220" step="1" value="120" inputmode="numeric" />
             </label>
             <label for="meterSelect">
               <span class="label">Meter</span>
@@ -93,11 +65,11 @@
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group feel-group">
           <span class="group-label">Rhythm</span>
           <div class="control-grid">
             <label for="subdivisionSelect">
-              <span class="label">Motion</span>
+              <span class="label">Rhythm</span>
               <select id="subdivisionSelect">
                 <option value="auto" selected>Auto</option>
                 <option value="eighth">1/8</option>
@@ -121,8 +93,8 @@
         <span class="group-label">Beat</span>
         <div class="beat-strip" id="beatStrip" aria-hidden="true"></div>
         <div class="rhythm-readout">
-          <strong id="tempoLabel">92 BPM</strong>
-          <span id="meterLabel">4/4 · Auto · beat 1 · bar 001</span>
+          <strong id="tempoLabel">120 BPM</strong>
+          <span id="meterLabel">4/4 · beat 1 · bar 001</span>
         </div>
       </div>
 
@@ -133,18 +105,18 @@
         </label>
         <label for="clickVolumeInput" class="volume-control">
           <span class="label">Click</span>
-          <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="45" />
-          <span class="volume-value" id="clickVolumeLabel">45%</span>
+          <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="55" />
+          <span class="volume-value" id="clickVolumeLabel">55%</span>
         </label>
         <div class="transport-controls">
           <button id="playPauseButton" type="button">Start</button>
-          <button id="rhythmResetButton" type="button">Reset</button>
+          <button id="resetButton" type="button">Reset</button>
         </div>
       </div>
     </aside>
   </main>
 
   <script src="../../../shared/metronome/metronome.js"></script>
-  <script src="sketch.js"></script>
+  <script src="./sketch.js"></script>
 </body>
 </html>

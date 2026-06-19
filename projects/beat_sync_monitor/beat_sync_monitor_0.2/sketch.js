@@ -13,6 +13,14 @@
   const beatStrip = document.getElementById("beatStrip");
   const tempoLabel = document.getElementById("tempoLabel");
   const meterLabel = document.getElementById("meterLabel");
+  const cameraToggleButton = document.getElementById("cameraToggleButton");
+  const cameraSelect = document.getElementById("cameraSelect");
+  const cameraStatus = document.getElementById("cameraStatus");
+  const videoScaleInput = document.getElementById("videoScaleInput");
+  const videoScaleValue = document.getElementById("videoScaleValue");
+  const videoShadeInput = document.getElementById("videoShadeInput");
+  const videoShadeValue = document.getElementById("videoShadeValue");
+  const hudPanel = document.querySelector(".hud");
   const rhythmPanel = document.querySelector(".rhythm-panel");
   const dataPopover = document.getElementById("dataPopover");
   const dataPopoverLabel = document.getElementById("dataPopoverLabel");
@@ -24,6 +32,15 @@
   let rhythmPanelDismissed = false;
   let activeDataSlotId = "";
   let latestDataSlots = [];
+  let cameraStream = null;
+  let cameraEnabled = false;
+  let videoScale = 0.5;
+  let videoShadeOpacity = 0.2;
+
+  const cameraVideo = document.createElement("video");
+  cameraVideo.autoplay = true;
+  cameraVideo.muted = true;
+  cameraVideo.playsInline = true;
 
   const metronome = window.AmbientMetronome.createMetronome({
     bpm: Number(bpmInput.value),
@@ -96,6 +113,106 @@
     if (element) {
       element.textContent = value;
     }
+  }
+
+  function setCameraStatus(value) {
+    setText(cameraStatus, value);
+  }
+
+  function updateCameraControls() {
+    if (cameraToggleButton) {
+      cameraToggleButton.textContent = cameraEnabled ? "Camera Off" : "Camera On";
+      cameraToggleButton.classList.toggle("camera-active", cameraEnabled);
+    }
+    if (cameraSelect) {
+      cameraSelect.disabled = !navigator.mediaDevices?.getUserMedia;
+    }
+  }
+
+  function updateVideoScale() {
+    videoScale = clamp(Number(videoScaleInput?.value || 50) / 100, 0.24, 1);
+    if (videoScaleValue) {
+      videoScaleValue.textContent = `${Math.round(videoScale * 100)}%`;
+    }
+  }
+
+  function updateVideoShade() {
+    videoShadeOpacity = clamp(Number(videoShadeInput?.value || 20) / 100, 0, 0.9);
+    if (videoShadeValue) {
+      videoShadeValue.textContent = `${Math.round(videoShadeOpacity * 100)}%`;
+    }
+  }
+
+  async function refreshCameraDevices(selectedDeviceId = "") {
+    if (!cameraSelect || !navigator.mediaDevices?.enumerateDevices) {
+      return;
+    }
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoInputs = devices.filter((device) => device.kind === "videoinput");
+    const currentValue = selectedDeviceId || cameraSelect.value;
+    cameraSelect.replaceChildren();
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Default camera";
+    cameraSelect.appendChild(defaultOption);
+
+    videoInputs.forEach((device, index) => {
+      const option = document.createElement("option");
+      option.value = device.deviceId;
+      option.textContent = device.label || `Camera ${index + 1}`;
+      cameraSelect.appendChild(option);
+    });
+
+    if (currentValue && videoInputs.some((device) => device.deviceId === currentValue)) {
+      cameraSelect.value = currentValue;
+    }
+  }
+
+  function stopCamera() {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+    }
+    cameraStream = null;
+    cameraEnabled = false;
+    cameraVideo.srcObject = null;
+    setCameraStatus("Camera off");
+    updateCameraControls();
+  }
+
+  async function startCamera(deviceId = "") {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraStatus("Camera unsupported");
+      return;
+    }
+
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+    }
+
+    setCameraStatus("Camera starting");
+
+    try {
+      const constraints = {
+        video: deviceId ? { deviceId: { exact: deviceId } } : true,
+        audio: false,
+      };
+      cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+      cameraVideo.srcObject = cameraStream;
+      await cameraVideo.play();
+      cameraEnabled = true;
+
+      const track = cameraStream.getVideoTracks()[0];
+      const trackSettings = track?.getSettings?.() || {};
+      await refreshCameraDevices(trackSettings.deviceId || deviceId);
+      setCameraStatus(track?.label ? `Source ${track.label}` : "Camera live");
+    } catch (error) {
+      stopCamera();
+      setCameraStatus(error?.name === "NotAllowedError" ? "Camera blocked" : "Camera failed");
+    }
+
+    updateCameraControls();
   }
 
   function updateReadout() {
@@ -273,6 +390,73 @@
         align: "right",
       },
     ];
+  }
+
+  function dataFrameRect(dataSlots) {
+    if (!dataSlots.length) {
+      return {
+        left: width * 0.098,
+        right: width * 0.9,
+        top: height * 0.104,
+        bottom: height * 0.93,
+      };
+    }
+
+    const xs = dataSlots.map((slot) => width * slot.x);
+    const ys = dataSlots.map((slot) => height * slot.y);
+    return {
+      left: Math.min(...xs),
+      right: Math.max(...xs),
+      top: Math.min(...ys),
+      bottom: Math.max(...ys),
+    };
+  }
+
+  function drawVideoCover(dataSlots) {
+    if (!cameraEnabled || cameraVideo.readyState < 2 || cameraVideo.videoWidth <= 0 || cameraVideo.videoHeight <= 0) {
+      return;
+    }
+
+    const frame = dataFrameRect(dataSlots);
+    const frameWidth = Math.max(1, frame.right - frame.left);
+    const frameHeight = Math.max(1, frame.bottom - frame.top);
+    const frameAspect = frameWidth / frameHeight;
+    let targetW = frameWidth * videoScale;
+    let targetH = targetW / frameAspect;
+
+    if (targetH > frameHeight * videoScale) {
+      targetH = frameHeight * videoScale;
+      targetW = targetH * frameAspect;
+    }
+
+    const targetX = width * 0.5 - targetW * 0.5;
+    const targetY = height * 0.5 - targetH * 0.5;
+    const sourceW = cameraVideo.videoWidth;
+    const sourceH = cameraVideo.videoHeight;
+    const sourceAspect = sourceW / sourceH;
+    const targetAspect = targetW / Math.max(1, targetH);
+    let sx = 0;
+    let sy = 0;
+    let sw = sourceW;
+    let sh = sourceH;
+
+    if (sourceAspect > targetAspect) {
+      sw = sourceH * targetAspect;
+      sx = (sourceW - sw) * 0.5;
+    } else {
+      sh = sourceW / targetAspect;
+      sy = (sourceH - sh) * 0.5;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 0.86;
+    ctx.drawImage(cameraVideo, sx, sy, sw, sh, targetX, targetY, targetW, targetH);
+    if (videoShadeOpacity > 0) {
+      ctx.globalAlpha = videoShadeOpacity;
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(targetX, targetY, targetW, targetH);
+    }
+    ctx.restore();
   }
 
   function slotTextEdge(slot) {
@@ -529,6 +713,7 @@
 
     const dataSlots = getDataSlots(now, progress, pulse);
     latestDataSlots = dataSlots;
+    drawVideoCover(dataSlots);
     drawTimeline(progress, pulse, dataSlots);
     drawOverlay(dataSlots);
     updateDataPopover();
@@ -558,7 +743,8 @@
         syncRhythmPanelVisibility();
         return;
       }
-      if (rhythmPanel?.matches(":hover") || document.activeElement?.closest?.(".rhythm-panel")) {
+      const hasPanelFocus = document.activeElement?.closest?.(".rhythm-panel, .hud");
+      if (rhythmPanel?.matches(":hover") || hudPanel?.matches(":hover") || hasPanelFocus) {
         showRhythmPanel(1600);
         return;
       }
@@ -581,7 +767,7 @@
   }
 
   function handleRhythmPointerDown(event) {
-    if (rhythmPanel?.contains(event.target)) {
+    if (rhythmPanel?.contains(event.target) || hudPanel?.contains(event.target)) {
       showRhythmPanel(0);
       return;
     }
@@ -713,6 +899,36 @@
     showRhythmPanel(state.running ? 2200 : 0);
   });
 
+  cameraToggleButton?.addEventListener("click", () => {
+    if (cameraEnabled) {
+      stopCamera();
+    } else {
+      startCamera(cameraSelect?.value || "");
+    }
+    showRhythmPanel(0);
+  });
+
+  cameraSelect?.addEventListener("change", () => {
+    if (cameraEnabled) {
+      startCamera(cameraSelect.value);
+    }
+    showRhythmPanel(0);
+  });
+
+  videoScaleInput?.addEventListener("input", () => {
+    updateVideoScale();
+    showRhythmPanel(state.running ? 2200 : 0);
+  });
+
+  videoShadeInput?.addEventListener("input", () => {
+    updateVideoShade();
+    showRhythmPanel(state.running ? 2200 : 0);
+  });
+
+  navigator.mediaDevices?.addEventListener?.("devicechange", () => {
+    refreshCameraDevices().catch(() => setCameraStatus("Camera list failed"));
+  });
+
   window.addEventListener("resize", resize);
   document.addEventListener("pointerdown", handleRhythmPointerDown);
   document.addEventListener("pointermove", handleRhythmPointerMove);
@@ -720,6 +936,10 @@
   document.addEventListener("fullscreenchange", resize);
 
   resize();
+  updateVideoScale();
+  updateVideoShade();
+  updateCameraControls();
+  refreshCameraDevices().catch(() => setCameraStatus("Camera list failed"));
   updateReadout();
   setTransportText();
   syncRhythmPanelVisibility();
