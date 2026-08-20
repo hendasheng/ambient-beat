@@ -45,8 +45,14 @@ projects/recursive_cells/
 │   ├── index.html
 │   ├── sketch.js
 │   └── style.css
-└── recursive_cells_0.3/
+├── recursive_cells_0.3/
     ├── index.html
+    ├── sketch.js
+    └── style.css
+└── recursive_cells_xhs_0.1/
+    ├── index.html
+    ├── metronome.js
+    ├── metronome-panel.css
     ├── sketch.js
     └── style.css
 ```
@@ -83,6 +89,18 @@ Camera 开启后使用 `getUserMedia()` 采集视频，并以 cover 模式绘制
 Start / Pause 不应刷新递归分布，也不能打乱 metronome 节拍。v0.3 不给 beat clock 叠全局 offset；只用 `beginPointTransition()` 和 `beginSplitTransition()` 在切换瞬间做短暂视觉过渡。
 
 `F` 快捷键切换 fullscreen。实现应避开 `input / select / textarea / button / contenteditable` 聚焦状态，避免用户调控件时误触发。
+
+## 小红书小工具分发版
+
+`projects/recursive_cells/recursive_cells_xhs_0.1/` 基于 v0.3 创建，是独立的离线分发变体，不是 GitHub Pages 当前主版本。根首页项目卡片仍应直接链接 `recursive_cells_0.3/index.html`。
+
+小工具目录必须自包含：`metronome.js` 与 `metronome-panel.css` 已从 `shared/metronome/` 复制到目录内，HTML 仅使用 `./` 相对路径。不要重新引入外部 CDN、仓库上级路径、内联脚本、module 脚本或联网请求。
+
+受限容器适配包括：移除 `enumerateDevices()` 与 fullscreen API；摄像头只在按钮点击后调用 `getUserMedia({ video: true, audio: false })`；使用安全区组合变量 `var(--safe-area-inset-*, env(safe-area-inset-*, 0px))`。
+
+Native 操作仅使用 `.codex/skills/minitool-zip-builder/references/jsbridge-api.md` 列出的 `window.xhs.miniTool.*` API。当前保存流程为 `canvas.toDataURL()` → `writeTempFile()` → `saveImageToPhotosAlbum()`，发布流程为 `postNote()` 图文笔记。
+
+当前上传包为 `artifacts/recursive_cells_xhs_0.1.zip`。重新打包时应压缩小工具目录的内容，而不是目录本身，确保 ZIP 根目录直接包含 `index.html`。
 
 ## v0.1 记录
 

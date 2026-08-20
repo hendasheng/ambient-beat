@@ -20,7 +20,7 @@ Metronome-based projects should reuse the shared control model where possible: T
 ## Projects
 
 - [Beat Sync Monitor](./projects/beat_sync_monitor/): a real-time beat monitor using an avsynctest-style data matrix, a centered rhythm module, a camera capture layer, clickable metric explanations, and a hidden metronome control panel. The current main version is v0.2.
-- [Recursive Cells](./projects/recursive_cells/): a dynamic recursive cell-splitting experiment where static rest points stabilize the topology while the shared metronome drives point motion and split distribution. The current main version v0.3 strengthens the FFmpeg testsrc / signal monitor style and can place a live camera feed into a sticky largest recursive cell.
+- [Recursive Cells](./projects/recursive_cells/): a dynamic recursive cell-splitting experiment where static rest points stabilize the topology while the shared metronome drives point motion and split distribution. The current main version v0.3 strengthens the FFmpeg testsrc / signal monitor style and can place a live camera feed into a sticky largest recursive cell. A standalone Xiaohongshu offline mini-tool build based on v0.3 is also available.
 - [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.4.
 
 ## Structure
@@ -56,8 +56,14 @@ Metronome-based projects should reuse the shared control model where possible: T
         │   ├── index.html
         │   ├── sketch.js
         │   └── style.css
-        └── recursive_cells_0.3/
+        ├── recursive_cells_0.3/
             ├── index.html
+            ├── sketch.js
+            └── style.css
+        └── recursive_cells_xhs_0.1/
+            ├── index.html
+            ├── metronome.js
+            ├── metronome-panel.css
             ├── sketch.js
             └── style.css
     ├── pingpong_topdown/

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Recursive Cells</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./metronome-panel.css" />
+</head>
+<body>
+  <main class="app" aria-label="Recursive Cells v0.3">
+    <canvas id="stage"></canvas>
+
+    <section class="hud" aria-label="Recursive Cells controls">
+      <div class="identity">
+        <span class="tool-name">Recursive Cells</span>
+        <span class="version">小红书小工具版</span>
+      </div>
+
+      <div class="readout">
+        <span id="cellCount">0 cells</span>
+        <span id="fpsReadout">-- fps</span>
+      </div>
+
+      <div class="hud-section">
+        <span class="section-label">Structure</span>
+        <label>
+          <span>Points</span>
+          <input id="pointInput" type="range" min="60" max="560" value="240" step="10" />
+          <output id="pointValue">240</output>
+        </label>
+
+        <label>
+          <span>Min Size</span>
+          <input id="minSizeInput" type="range" min="10" max="90" value="34" />
+          <output id="minSizeValue">34</output>
+        </label>
+
+        <label>
+          <span>Irregularity</span>
+          <input id="irregularityInput" type="range" min="0" max="100" value="62" />
+          <output id="irregularityValue">0.62</output>
+        </label>
+
+        <button id="resetButton" class="secondary-button" type="button">Reset Seed</button>
+      </div>
+
+      <div class="hud-section">
+        <span class="section-label">Preview</span>
+        <label>
+          <span>Motion</span>
+          <input id="motionInput" type="range" min="0" max="100" value="45" />
+          <output id="motionValue">0.45</output>
+        </label>
+
+        <label>
+          <span>Speed</span>
+          <input id="speedInput" type="range" min="0" max="120" value="20" />
+          <output id="speedValue">0.20</output>
+        </label>
+      </div>
+
+      <div class="hud-section">
+        <span class="section-label">Camera</span>
+        <button id="cameraToggleButton" type="button">Camera On</button>
+        <span id="cameraStatus" class="camera-status">Camera off</span>
+      </div>
+    </section>
+
+    <section class="share-actions" aria-label="小红书操作">
+      <button id="saveImageButton" type="button">保存画面</button>
+      <button id="postNoteButton" type="button">发布笔记</button>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <aside class="rhythm-panel" aria-label="Beat controls">
+      <div class="rhythm-primary">
+        <div class="control-group">
+          <span class="group-label">Tempo</span>
+          <div class="control-grid">
+            <label for="bpmInput">
+              <span class="label">BPM</span>
+              <input id="bpmInput" type="number" min="40" max="240" step="1" value="92" inputmode="numeric" />
+            </label>
+            <label for="meterSelect">
+              <span class="label">Meter</span>
+              <select id="meterSelect">
+                <option value="3/4">3/4</option>
+                <option value="4/4" selected>4/4</option>
+                <option value="5/4">5/4</option>
+                <option value="7/4">7/4</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="group-label">Rhythm</span>
+          <div class="control-grid">
+            <label for="subdivisionSelect">
+              <span class="label">Motion</span>
+              <select id="subdivisionSelect">
+                <option value="auto" selected>Auto</option>
+                <option value="eighth">1/8</option>
+                <option value="triplet">1/8T</option>
+                <option value="sixteenth">1/16</option>
+              </select>
+            </label>
+            <label for="countInSelect">
+              <span class="label">Count In</span>
+              <select id="countInSelect">
+                <option value="0" selected>None</option>
+                <option value="1">1 bar</option>
+                <option value="2">2 bars</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group beat-group">
+        <span class="group-label">Beat</span>
+        <div class="beat-strip" id="beatStrip" aria-hidden="true"></div>
+        <div class="rhythm-readout">
+          <strong id="tempoLabel">92 BPM</strong>
+          <span id="meterLabel">4/4 · Auto · beat 1 · bar 001</span>
+        </div>
+      </div>
+
+      <div class="transport-bar">
+        <label for="offbeatInput" class="offbeat-control">
+          <span class="label">Offbeat</span>
+          <input id="offbeatInput" type="checkbox" />
+        </label>
+        <label for="clickVolumeInput" class="volume-control">
+          <span class="label">Click</span>
+          <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="45" />
+          <span class="volume-value" id="clickVolumeLabel">45%</span>
+        </label>
+        <div class="transport-controls">
+          <button id="playPauseButton" type="button">Start</button>
+          <button id="rhythmResetButton" type="button">Reset</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="./metronome.js"></script>
+  <script src="./sketch.js"></script>
+</body>
+</html>

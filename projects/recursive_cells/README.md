@@ -12,6 +12,7 @@ v0.3 以 v0.2 之后的当前实验状态作为新主版本，进一步加强 si
 
 ## Versions
 
+- [recursive_cells_xhs_0.1](./recursive_cells_xhs_0.1/)：基于 v0.3 的小红书小工具分发版，不替代当前 Web 主版本。共享节拍器资源已内置，使用离线相对路径，移除容器禁用的摄像头枚举与 fullscreen，并通过 `window.xhs.miniTool` 提供保存画面和发布笔记。
 - [recursive_cells_0.3](./recursive_cells_0.3/)：当前主版本。以 v0.2 之后的实验状态为基础，加强 FFmpeg testsrc / signal monitor 风格，包含规则彩条、灰阶 ramp、稀疏工程字段、动态 fit 文本、少量校准标记、可选摄像头输入，以及共享节拍器 Offbeat 控制。
 - [recursive_cells_0.2](./recursive_cells_0.2/)：建立 FFmpeg testsrc 风格测试色块、稀疏单行 cell 内节拍信息、动态 fit 文本、自由预览用 Motion / Speed、Start / Pause 短视觉过渡，以及 `F` fullscreen。
 - [recursive_cells_0.1](./recursive_cells_0.1/)：建立动态黑白递归切割，包含 point count、min size、irregularity、reset seed、beat / bar 级切割比例推进、全屏内部边线绘制、同步隐藏控制面板，以及 Tempo、Meter、Rhythm、Count In、Click Volume、Start 和 Reset 控制。
@@ -22,3 +23,15 @@ v0.3 以 v0.2 之后的当前实验状态作为新主版本，进一步加强 si
 - 拓扑稳定，运动来自显示边界的局部推拉。
 - 使用统一节拍器语义，让递归运动和乐句级切割分布跟随 Tempo / Meter / Rhythm。
 - 后续可以继续调整拍点脉冲的视觉力度，或把节拍分层映射到不同深度的 cell。
+
+## 小红书小工具构建
+
+`recursive_cells_xhs_0.1` 是可独立打包的离线 H5 目录，入口为根层级 `index.html`。目录内不依赖仓库的 `shared/` 文件，也不加载 CDN 或其他网络资源。
+
+- 源码目录：`projects/recursive_cells/recursive_cells_xhs_0.1/`
+- 上传包：`artifacts/recursive_cells_xhs_0.1.zip`
+- 构建 skill：`.codex/skills/minitool-zip-builder/SKILL.md`
+- ZIP 根目录直接包含 `index.html`，没有额外包裹目录。
+- 摄像头由用户点击后调用 `getUserMedia()`；不枚举设备。
+- 保存画面使用 `writeTempFile()` 与 `saveImageToPhotosAlbum()`；发布使用 `postNote()`。
+- 在普通浏览器中可预览视觉和节拍交互，但保存与发布功能需要小红书小工具容器注入 JSBridge。
