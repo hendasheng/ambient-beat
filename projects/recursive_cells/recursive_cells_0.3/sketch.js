@@ -321,6 +321,18 @@ function resize() {
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  window.requestAnimationFrame(syncMobilePanelSpacing);
+}
+
+function syncMobilePanelSpacing() {
+  if (!rhythmPanel) {
+    return;
+  }
+
+  document.documentElement.style.setProperty(
+    "--mobile-rhythm-panel-height",
+    `${Math.ceil(rhythmPanel.getBoundingClientRect().height)}px`,
+  );
 }
 
 function resetPoints() {
@@ -1206,6 +1218,11 @@ window.addEventListener("resize", resize);
 document.addEventListener("keydown", handleKeydown);
 document.addEventListener("pointerdown", handleRhythmPointerDown);
 document.addEventListener("pointermove", handleRhythmPointerMove);
+
+if ("ResizeObserver" in window && rhythmPanel) {
+  const rhythmPanelResizeObserver = new ResizeObserver(syncMobilePanelSpacing);
+  rhythmPanelResizeObserver.observe(rhythmPanel);
+}
 
 resize();
 rebuildPointSet();

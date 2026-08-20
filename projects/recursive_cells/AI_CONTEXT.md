@@ -84,6 +84,8 @@ v0.3 少量大 cell 可以显示短准星或角 tick 作为工程校准标记，
 
 v0.3 左上参数面板按 `Structure / Preview / Camera` 分组排列。`Structure` 包含 `Points / Min Size / Irregularity / Reset Seed`；`Preview` 包含 `Motion / Speed`，主要用于未启动节拍时的自由预览，不要再当作无效控件删除，默认值为 Motion `0.45`、Speed `0.20`；`Camera` 包含摄像头开启 / 关闭、摄像机源选择和状态文本。
 
+移动端（`max-width: 680px`）不使用展开 / 收起状态，上下控制区全部常驻。HUD 使用两栏布局：Structure 位于左栏，Preview 与 Camera 堆叠在右栏，摄像头按钮和来源选择并排。节拍面板保持 BPM / Meter / Motion / Count In、Beat 进度 / 状态和运输栏全部可见；`rhythm-primary` 使用双列紧凑布局并省略重复的组标题。`ResizeObserver` 会把节拍面板实际高度写入 `--mobile-rhythm-panel-height`，HUD 用该值计算 `max-height`；内容较少时背景自然收缩，空间不足时才内部滚动，同时避免两个面板覆盖。
+
 Camera 开启后使用 `getUserMedia()` 采集视频，并以 cover 模式绘制到一个承载 cell 中。承载 cell 通过 `videoCellKey` 保持粘性：只要当前 cell 还存在且没有小到阈值以下，就继续跟随这个 cell 的动态尺寸；只有当前 cell 消失或过小时才重新选择当前最大的 cell，避免视频在画面中每帧跳动闪烁。
 
 Start / Pause 不应刷新递归分布，也不能打乱 metronome 节拍。v0.3 不给 beat clock 叠全局 offset；只用 `beginPointTransition()` 和 `beginSplitTransition()` 在切换瞬间做短暂视觉过渡。

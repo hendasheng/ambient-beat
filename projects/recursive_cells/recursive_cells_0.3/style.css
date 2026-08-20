@@ -411,26 +411,88 @@ body.rhythm-pinned .rhythm-panel {
   .hud {
     left: 10px;
     right: 10px;
-    top: 10px;
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    gap: 6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
     width: auto;
-    padding: 10px;
+    max-height: calc(
+      100svh - var(--mobile-rhythm-panel-height, 170px) - 40px -
+      env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
+    padding: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .identity {
+    gap: 6px;
+  }
+
+  .readout {
+    font-size: 10px;
+  }
+
+  .hud .identity,
+  .hud .readout {
+    grid-column: 1 / -1;
+  }
+
+  .hud .hud-section:nth-of-type(3) {
+    grid-column: 1;
+    grid-row: 3 / span 2;
+  }
+
+  .hud .hud-section:nth-of-type(4) {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .hud .hud-section:nth-of-type(5) {
+    grid-column: 2;
+    grid-row: 4;
   }
 
   .hud label {
-    grid-template-columns: 88px minmax(0, 1fr) 38px;
-    gap: 7px;
+    grid-template-columns: 54px minmax(0, 1fr) 30px;
+    gap: 4px;
+  }
+
+  .hud-section {
+    gap: 5px;
+    padding: 6px;
+  }
+
+  .hud label span,
+  .hud output,
+  .camera-status {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+
+  .hud button,
+  .hud select {
+    height: 28px;
+    font-size: 10px;
   }
 
   .camera-controls {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4px;
   }
 
   .rhythm-panel {
     left: 10px;
     right: 10px;
-    bottom: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    gap: 5px;
     width: auto;
+    max-height: calc(58svh - 20px);
     padding: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     transform: translateY(12px);
   }
 
@@ -440,11 +502,59 @@ body.rhythm-pinned .rhythm-panel {
   }
 
   .rhythm-primary {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .rhythm-primary .control-group {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .rhythm-primary .group-label,
+  .beat-group > .group-label {
+    display: none;
+  }
+
+  .control-group {
+    gap: 4px;
+    padding: 5px;
+  }
+
+  .control-grid {
+    gap: 4px;
+  }
+
+  .control-grid label {
+    gap: 3px;
+  }
+
+  .control-grid input,
+  .control-grid select {
+    height: 26px;
+    padding: 0 5px;
   }
 
   .rhythm-readout {
-    grid-template-columns: 1fr;
-    gap: 3px;
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .beat-group {
+    padding: 5px;
+  }
+
+  .transport-bar {
+    gap: 5px;
+    padding-top: 4px;
+  }
+
+  .transport-controls {
+    gap: 4px;
+  }
+
+  .transport-controls button {
+    height: 30px;
   }
 }
