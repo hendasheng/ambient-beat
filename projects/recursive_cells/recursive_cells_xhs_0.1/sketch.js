@@ -1078,11 +1078,11 @@ async function postCurrentFrame() {
 
   try {
     await bridge.postNote({
-      title: "递归节拍细胞",
+      title: "氛围节拍-递归细胞",
       content: "用节拍生成一帧不断生长的信号细胞。",
       pageType: "photo_publish",
       mediaInfo: { image_resources: [{ url: captureFrame() }] },
-      tags: "视觉节拍,生成艺术",
+      tags: "氛围节拍,递归细胞,视觉节拍,生成艺术",
     });
   } catch (error) {
     showToast("发布页打开失败，请稍后重试");
