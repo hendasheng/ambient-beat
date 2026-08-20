@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Recursive Icon Lab</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">RECURSIVE CELLS</span>
+        <h1>ICON LAB</h1>
+      </div>
+      <button id="shuffleButton" class="shuffle-button" type="button" aria-label="生成新的图标">
+        <span>换一个</span><span aria-hidden="true">↗</span>
+      </button>
+    </header>
+
+    <section class="workspace" aria-label="图标预览">
+      <div class="hero-card">
+        <div class="hero-meta">
+          <span id="iconId">RC-000-00</span>
+          <span>1024 × 1024</span>
+        </div>
+        <button id="canvasButton" class="canvas-button" type="button" aria-label="点击生成新的图标">
+          <canvas id="iconCanvas" width="1024" height="1024"></canvas>
+        </button>
+        <p>点击图标，生成新的递归构图</p>
+      </div>
+
+      <div class="size-preview" aria-label="多尺寸预览">
+        <div class="preview-item preview-128"><canvas data-size="128" width="128" height="128"></canvas><span>128</span></div>
+        <div class="preview-item preview-64"><canvas data-size="64" width="64" height="64"></canvas><span>64</span></div>
+        <div class="preview-item preview-32"><canvas data-size="32" width="32" height="32"></canvas><span>32</span></div>
+      </div>
+    </section>
+
+    <section class="controls" aria-label="图标设置">
+      <div class="control-heading"><span>构图参数</span><span id="cellReadout">12 CELLS</span></div>
+
+      <label class="range-row" for="complexityInput">
+        <span>复杂度</span>
+        <input id="complexityInput" type="range" min="5" max="22" value="12" step="1" />
+        <output id="complexityValue">12</output>
+      </label>
+      <label class="range-row" for="regularityInput">
+        <span>规整度</span>
+        <input id="regularityInput" type="range" min="0" max="100" value="58" step="1" />
+        <output id="regularityValue">58</output>
+      </label>
+      <label class="range-row" for="gutterInput">
+        <span>分隔线</span>
+        <input id="gutterInput" type="range" min="4" max="32" value="14" step="1" />
+        <output id="gutterValue">14</output>
+      </label>
+
+      <fieldset class="palette-field">
+        <legend>配色</legend>
+        <div class="palette-list" id="paletteList">
+          <button class="palette-option is-active" type="button" data-palette="test" aria-pressed="true"><i class="swatch swatch-test"></i><span>测试卡</span></button>
+          <button class="palette-option" type="button" data-palette="mono" aria-pressed="false"><i class="swatch swatch-mono"></i><span>黑白</span></button>
+          <button class="palette-option" type="button" data-palette="neon" aria-pressed="false"><i class="swatch swatch-neon"></i><span>霓虹</span></button>
+          <button class="palette-option" type="button" data-palette="signal" aria-pressed="false"><i class="swatch swatch-signal"></i><span>信号红</span></button>
+        </div>
+        <button id="colorShuffleButton" class="color-shuffle-button" type="button"><span>切换配色</span><span aria-hidden="true">↻</span></button>
+      </fieldset>
+
+      <div class="action-row">
+        <button id="downloadButton" class="primary-button" type="button" disabled>正在加载图标…</button>
+        <button id="resetButton" class="secondary-button" type="button">重置</button>
+      </div>
+      <p class="export-note">下载 PNG · 1024 × 1024</p>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </main>
+  <script src="./icon.js"></script>
+</body>
+</html>

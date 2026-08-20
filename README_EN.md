@@ -20,7 +20,7 @@ Metronome-based projects should reuse the shared control model where possible: T
 ## Projects
 
 - [Beat Sync Monitor](./projects/beat_sync_monitor/): a real-time beat monitor using an avsynctest-style data matrix, a centered rhythm module, a camera capture layer, clickable metric explanations, and a hidden metronome control panel. The current main version is v0.2.
-- [Recursive Cells](./projects/recursive_cells/): a dynamic recursive cell-splitting experiment where static rest points stabilize the topology while the shared metronome drives point motion and split distribution. The current main version v0.3 strengthens the FFmpeg testsrc / signal monitor style and can place a live camera feed into a sticky largest recursive cell. A standalone Xiaohongshu offline mini-tool build based on v0.3 is also available.
+- [Recursive Cells](./projects/recursive_cells/): a dynamic recursive cell-splitting experiment where static rest points stabilize the topology while the shared metronome drives point motion and split distribution. The current main version v0.3 strengthens the FFmpeg testsrc / signal monitor style and can place a live camera feed into a sticky largest recursive cell. A standalone Xiaohongshu offline mini-tool named “Ambient Beat - Recursive Cells” is also available: a metronome that visualizes rhythmic changes through recursion.
 - [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.4.
 
 ## Structure

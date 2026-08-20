@@ -13,6 +13,7 @@ const speedInput = document.getElementById("speedInput");
 const speedValue = document.getElementById("speedValue");
 const resetButton = document.getElementById("resetButton");
 const cameraToggleButton = document.getElementById("cameraToggleButton");
+const cameraFacingButton = document.getElementById("cameraFacingButton");
 const cameraStatus = document.getElementById("cameraStatus");
 const saveImageButton = document.getElementById("saveImageButton");
 const postNoteButton = document.getElementById("postNoteButton");
@@ -50,6 +51,8 @@ let pointTransition = null;
 let splitTransition = null;
 let cameraStream = null;
 let cameraEnabled = false;
+let cameraStarting = false;
+let cameraFacingMode = "user";
 let videoCellKey = null;
 let toastTimer = 0;
 
@@ -234,8 +237,13 @@ function setCameraStatus(value) {
 
 function updateCameraControls() {
   if (cameraToggleButton) {
-    cameraToggleButton.textContent = cameraEnabled ? "关闭摄像头" : "开启摄像头";
+    cameraToggleButton.textContent = cameraStarting ? "启动中" : cameraEnabled ? "关闭摄像头" : "开启摄像头";
     cameraToggleButton.classList.toggle("camera-active", cameraEnabled);
+    cameraToggleButton.disabled = cameraStarting;
+  }
+  if (cameraFacingButton) {
+    cameraFacingButton.textContent = cameraFacingMode === "user" ? "切到后置" : "切到前置";
+    cameraFacingButton.disabled = cameraStarting;
   }
 }
 
@@ -257,6 +265,9 @@ async function startCamera() {
     return;
   }
 
+  cameraStarting = true;
+  updateCameraControls();
+
   if (cameraStream) {
     cameraStream.getTracks().forEach((track) => track.stop());
   }
@@ -264,18 +275,24 @@ async function startCamera() {
   setCameraStatus("摄像头启动中");
 
   try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: cameraFacingMode } },
+      audio: false,
+    });
     cameraVideo.srcObject = cameraStream;
     await cameraVideo.play();
     cameraEnabled = true;
 
     const track = cameraStream.getVideoTracks()[0];
-    setCameraStatus(track?.label ? `来源：${track.label}` : "摄像头运行中");
+    const activeFacingMode = track?.getSettings?.().facingMode;
+    const facingLabel = activeFacingMode === "environment" || (!activeFacingMode && cameraFacingMode === "environment") ? "后置" : "前置";
+    setCameraStatus(track?.label ? `${facingLabel} · ${track.label}` : `${facingLabel}摄像头运行中`);
   } catch (error) {
     stopCamera();
     setCameraStatus(error?.name === "NotAllowedError" ? "未获得摄像头权限" : "摄像头启动失败");
   }
 
+  cameraStarting = false;
   updateCameraControls();
 }
 
@@ -680,9 +697,17 @@ function rhythmCellLines(cell, now) {
   return slot;
 }
 
+function cellTextFont(size, text) {
+  const hasChinese = /[\u3400-\u9fff]/.test(text);
+  const family = hasChinese
+    ? '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif'
+    : 'Consolas, "SFMono-Regular", monospace';
+  return `800 ${size}px ${family}`;
+}
+
 function fitTextSize(text, maxWidth, maxHeight, maxSize) {
   const referenceSize = 100;
-  ctx.font = `800 ${referenceSize}px Consolas, "SFMono-Regular", monospace`;
+  ctx.font = cellTextFont(referenceSize, text);
   const referenceWidth = Math.max(1, ctx.measureText(text).width);
   const widthSize = maxWidth / referenceWidth * referenceSize;
   const heightSize = maxHeight;
@@ -742,7 +767,7 @@ function drawCellText(cell, now, labelCounts) {
   ctx.fillStyle = textColorForFill(color);
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `800 ${size}px Consolas, "SFMono-Regular", monospace`;
+  ctx.font = cellTextFont(size, text);
   ctx.globalAlpha = 0.88 * alpha;
 
   const x = cell.x + cell.w * 0.5;
@@ -1116,6 +1141,20 @@ cameraToggleButton?.addEventListener("click", () => {
   });
 });
 
+cameraFacingButton?.addEventListener("click", () => {
+  cameraFacingMode = cameraFacingMode === "user" ? "environment" : "user";
+  updateCameraControls();
+
+  if (!cameraEnabled) {
+    setCameraStatus(cameraFacingMode === "user" ? "已选择前置摄像头" : "已选择后置摄像头");
+    return;
+  }
+
+  startCamera().then(() => {
+    showRhythmPanel(rhythm.running ? 2200 : 0);
+  });
+});
+
 saveImageButton?.addEventListener("click", saveCurrentFrame);
 postNoteButton?.addEventListener("click", postCurrentFrame);
 
@@ -1163,7 +1202,7 @@ bpmInput.addEventListener("input", () => {
 });
 
 meterSelect.addEventListener("change", () => {
-  rhythm.beatsPerBar = metronome.setBeatsPerBar(parseMeter(meterSelect.value));
+  rhythm.beatsPerBar = metronome.setBeatsPerBar(parseMeter(meterSelect.value), performance.now());
   updateRhythmReadout();
   showRhythmPanel(rhythm.running ? 2200 : 0);
 });

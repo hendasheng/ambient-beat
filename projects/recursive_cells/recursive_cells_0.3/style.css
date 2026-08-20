@@ -275,6 +275,27 @@ body.rhythm-pinned .hud {
   --metronome-primary-text: #030303;
 }
 
+.rhythm-panel .transport-controls {
+  grid-template-columns: minmax(0, 1fr) 34px;
+  width: 170px;
+}
+
+.rhythm-panel .transport-controls .icon-button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.rhythm-panel .transport-controls .icon-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 body.rhythm-visible .rhythm-panel,
 body.rhythm-pinned .rhythm-panel {
   cursor: auto;
@@ -554,7 +575,17 @@ body.rhythm-pinned .rhythm-panel {
     gap: 4px;
   }
 
+  .rhythm-panel .transport-controls {
+    width: 170px;
+  }
+
   .transport-controls button {
     height: 30px;
+  }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .rhythm-panel .transport-bar {
+    grid-template-columns: max-content minmax(0, 1fr) 170px;
   }
 }

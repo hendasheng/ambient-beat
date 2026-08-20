@@ -69,10 +69,10 @@
 
 .transport-controls {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) 34px;
   gap: 6px;
   justify-self: end;
-  width: 132px;
+  width: 170px;
   min-width: 0;
 }
 
@@ -93,6 +93,18 @@
   border-color: var(--metronome-primary-border, #ffffff);
   background: var(--metronome-primary-bg, #ffffff);
   color: var(--metronome-primary-text, #030303);
+}
+
+.transport-controls .icon-button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.transport-controls .icon-button img {
+  display: block;
+  width: 18px;
+  height: 18px;
 }
 
 .transport-controls button:hover,
@@ -133,7 +145,7 @@
 
 @media (max-width: 680px) and (orientation: portrait) {
   .transport-bar {
-    grid-template-columns: max-content minmax(0, 1fr) 132px;
+    grid-template-columns: max-content minmax(0, 1fr) 170px;
     gap: 7px;
     justify-content: stretch;
     padding-top: 5px;

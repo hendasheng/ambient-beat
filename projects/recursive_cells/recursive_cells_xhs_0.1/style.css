@@ -5,6 +5,7 @@
   --line: rgba(255, 255, 255, 0.18);
   --panel: rgba(5, 5, 5, 0.72);
   --field: rgba(255, 255, 255, 0.08);
+  --system-header-clearance: 50px;
 }
 
 * {
@@ -56,7 +57,7 @@ select {
 .hud {
   position: fixed;
   left: 18px;
-  top: calc(18px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+  top: calc(18px + var(--system-header-clearance) + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
   display: grid;
   gap: 8px;
   width: min(332px, calc(100vw - 36px));
@@ -247,7 +248,7 @@ body.rhythm-pinned .hud {
 .rhythm-panel {
   position: fixed;
   left: 50%;
-  bottom: calc(20px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  bottom: calc(36px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
   display: grid;
   gap: 6px;
   width: min(520px, calc(100vw - 40px));
@@ -399,10 +400,15 @@ body.rhythm-pinned .rhythm-panel {
   background: rgba(255, 255, 255, 0.14);
 }
 
+.camera-controls,
 .camera-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
+}
+
+.camera-controls button {
+  min-width: 0;
 }
 
 .hud .camera-actions button {
@@ -456,13 +462,13 @@ body.rhythm-pinned .rhythm-panel {
   .hud {
     left: 10px;
     right: 10px;
-    top: calc(10px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    top: calc(10px + var(--system-header-clearance) + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
     gap: 6px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-content: start;
     width: auto;
     max-height: calc(
-      100svh - var(--mobile-rhythm-panel-height, 170px) - 40px -
+      100svh - var(--mobile-rhythm-panel-height, 170px) - 90px -
       var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) -
       var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))
     );
@@ -501,8 +507,28 @@ body.rhythm-pinned .rhythm-panel {
   }
 
   .hud label {
-    grid-template-columns: 54px minmax(0, 1fr) 30px;
-    gap: 4px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 6px;
+    align-items: center;
+  }
+
+  .hud label > span {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .hud label > output {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 30px;
+  }
+
+  .hud label > input[type="range"] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: 28px;
+    margin: -4px 0;
+    touch-action: none;
   }
 
   .hud-section {
@@ -526,7 +552,7 @@ body.rhythm-pinned .rhythm-panel {
   .rhythm-panel {
     left: 10px;
     right: 10px;
-    bottom: calc(10px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+    bottom: calc(26px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
     gap: 5px;
     width: auto;
     max-height: calc(58svh - 20px);

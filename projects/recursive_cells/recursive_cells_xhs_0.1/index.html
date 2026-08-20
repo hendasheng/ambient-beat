@@ -61,7 +61,10 @@
 
       <div class="hud-section">
         <span class="section-label">摄像头</span>
-        <button id="cameraToggleButton" type="button">开启摄像头</button>
+        <div class="camera-controls">
+          <button id="cameraToggleButton" type="button">开启摄像头</button>
+          <button id="cameraFacingButton" class="secondary-button" type="button">切到后置</button>
+        </div>
         <span id="cameraStatus" class="camera-status">摄像头已关闭</span>
         <div class="camera-actions">
           <button id="saveImageButton" type="button">保存画面</button>
@@ -138,7 +141,9 @@
         </label>
         <div class="transport-controls">
           <button id="playPauseButton" type="button">开始</button>
-          <button id="rhythmResetButton" type="button">重置</button>
+          <button id="rhythmResetButton" class="icon-button" type="button" aria-label="重置" title="重置">
+            <img src="./refresh-01.svg" alt="" aria-hidden="true" />
+          </button>
         </div>
       </div>
     </aside>

@@ -26,6 +26,7 @@ const clickVolumeInput = document.getElementById("clickVolumeInput");
 const clickVolumeLabel = document.getElementById("clickVolumeLabel");
 const playPauseButton = document.getElementById("playPauseButton");
 const rhythmResetButton = document.getElementById("rhythmResetButton");
+const refreshIcon = document.getElementById("refreshIcon");
 const beatStrip = document.getElementById("beatStrip");
 const tempoLabel = document.getElementById("tempoLabel");
 const meterLabel = document.getElementById("meterLabel");
@@ -1185,7 +1186,7 @@ bpmInput.addEventListener("input", () => {
 });
 
 meterSelect.addEventListener("change", () => {
-  rhythm.beatsPerBar = metronome.setBeatsPerBar(parseMeter(meterSelect.value));
+  rhythm.beatsPerBar = metronome.setBeatsPerBar(parseMeter(meterSelect.value), performance.now());
   updateRhythmReadout();
   showRhythmPanel(rhythm.running ? 2200 : 0);
 });
@@ -1233,4 +1234,15 @@ updateCameraControls();
 refreshCameraDevices().catch(() => {
   setCameraStatus("Camera list failed");
 });
+import("https://cdn.jsdelivr.net/npm/@hugeicons/core-free-icons@4.2.1/dist/esm/Refresh01Icon.js")
+  .then((module) => {
+    module.default.forEach((entry) => {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", entry[1].d);
+      refreshIcon.appendChild(path);
+    });
+  })
+  .catch(() => {
+    rhythmResetButton.textContent = "Reset";
+  });
 requestAnimationFrame(render);
