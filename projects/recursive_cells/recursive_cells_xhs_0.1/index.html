@@ -14,77 +14,75 @@
     <section class="hud" aria-label="Recursive Cells controls">
       <div class="identity">
         <span class="tool-name">Recursive Cells</span>
-        <span class="version">小红书小工具版</span>
       </div>
 
       <div class="readout">
-        <span id="cellCount">0 cells</span>
-        <span id="fpsReadout">-- fps</span>
+        <span id="cellCount">0 个单元</span>
+        <span id="fpsReadout">-- FPS</span>
       </div>
 
       <div class="hud-section">
-        <span class="section-label">Structure</span>
+        <span class="section-label">结构</span>
         <label>
-          <span>Points</span>
+          <span>点数</span>
           <input id="pointInput" type="range" min="60" max="560" value="240" step="10" />
           <output id="pointValue">240</output>
         </label>
 
         <label>
-          <span>Min Size</span>
+          <span>最小尺寸</span>
           <input id="minSizeInput" type="range" min="10" max="90" value="34" />
           <output id="minSizeValue">34</output>
         </label>
 
         <label>
-          <span>Irregularity</span>
+          <span>不规则度</span>
           <input id="irregularityInput" type="range" min="0" max="100" value="62" />
           <output id="irregularityValue">0.62</output>
         </label>
 
-        <button id="resetButton" class="secondary-button" type="button">Reset Seed</button>
+        <button id="resetButton" class="secondary-button" type="button">更换种子</button>
       </div>
 
       <div class="hud-section">
-        <span class="section-label">Preview</span>
+        <span class="section-label">预览</span>
         <label>
-          <span>Motion</span>
+          <span>运动</span>
           <input id="motionInput" type="range" min="0" max="100" value="45" />
           <output id="motionValue">0.45</output>
         </label>
 
         <label>
-          <span>Speed</span>
+          <span>速度</span>
           <input id="speedInput" type="range" min="0" max="120" value="20" />
           <output id="speedValue">0.20</output>
         </label>
       </div>
 
       <div class="hud-section">
-        <span class="section-label">Camera</span>
-        <button id="cameraToggleButton" type="button">Camera On</button>
-        <span id="cameraStatus" class="camera-status">Camera off</span>
+        <span class="section-label">摄像头</span>
+        <button id="cameraToggleButton" type="button">开启摄像头</button>
+        <span id="cameraStatus" class="camera-status">摄像头已关闭</span>
+        <div class="camera-actions">
+          <button id="saveImageButton" type="button">保存画面</button>
+          <button id="postNoteButton" type="button">发布笔记</button>
+        </div>
       </div>
-    </section>
-
-    <section class="share-actions" aria-label="小红书操作">
-      <button id="saveImageButton" type="button">保存画面</button>
-      <button id="postNoteButton" type="button">发布笔记</button>
     </section>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-    <aside class="rhythm-panel" aria-label="Beat controls">
+    <aside class="rhythm-panel" aria-label="节拍控制">
       <div class="rhythm-primary">
         <div class="control-group">
-          <span class="group-label">Tempo</span>
+          <span class="group-label">速度</span>
           <div class="control-grid">
             <label for="bpmInput">
-              <span class="label">BPM</span>
+              <span class="label">速度</span>
               <input id="bpmInput" type="number" min="40" max="240" step="1" value="92" inputmode="numeric" />
             </label>
             <label for="meterSelect">
-              <span class="label">Meter</span>
+              <span class="label">拍号</span>
               <select id="meterSelect">
                 <option value="3/4">3/4</option>
                 <option value="4/4" selected>4/4</option>
@@ -96,23 +94,23 @@
         </div>
 
         <div class="control-group">
-          <span class="group-label">Rhythm</span>
+          <span class="group-label">节奏</span>
           <div class="control-grid">
             <label for="subdivisionSelect">
-              <span class="label">Motion</span>
+              <span class="label">细分</span>
               <select id="subdivisionSelect">
-                <option value="auto" selected>Auto</option>
+                <option value="auto" selected>自动</option>
                 <option value="eighth">1/8</option>
                 <option value="triplet">1/8T</option>
                 <option value="sixteenth">1/16</option>
               </select>
             </label>
             <label for="countInSelect">
-              <span class="label">Count In</span>
+              <span class="label">预备拍</span>
               <select id="countInSelect">
-                <option value="0" selected>None</option>
-                <option value="1">1 bar</option>
-                <option value="2">2 bars</option>
+                <option value="0" selected>无</option>
+                <option value="1">1 小节</option>
+                <option value="2">2 小节</option>
               </select>
             </label>
           </div>
@@ -120,27 +118,27 @@
       </div>
 
       <div class="control-group beat-group">
-        <span class="group-label">Beat</span>
+        <span class="group-label">节拍</span>
         <div class="beat-strip" id="beatStrip" aria-hidden="true"></div>
         <div class="rhythm-readout">
-          <strong id="tempoLabel">92 BPM</strong>
-          <span id="meterLabel">4/4 · Auto · beat 1 · bar 001</span>
+          <strong id="tempoLabel">92 拍/分</strong>
+          <span id="meterLabel">4/4 · 自动 · 第 1 拍 · 第 001 小节</span>
         </div>
       </div>
 
       <div class="transport-bar">
         <label for="offbeatInput" class="offbeat-control">
-          <span class="label">Offbeat</span>
+          <span class="label">反拍</span>
           <input id="offbeatInput" type="checkbox" />
         </label>
         <label for="clickVolumeInput" class="volume-control">
-          <span class="label">Click</span>
+          <span class="label">音量</span>
           <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="45" />
           <span class="volume-value" id="clickVolumeLabel">45%</span>
         </label>
         <div class="transport-controls">
-          <button id="playPauseButton" type="button">Start</button>
-          <button id="rhythmResetButton" type="button">Reset</button>
+          <button id="playPauseButton" type="button">开始</button>
+          <button id="rhythmResetButton" type="button">重置</button>
         </div>
       </div>
     </aside>

@@ -82,7 +82,7 @@ const testsrcBars = ["#ffffff", "#ffff00", "#00ffff", "#00ff00", "#ff00ff", "#ff
 const grayRamp = ["#101010", "#303030", "#606060", "#909090", "#c0c0c0", "#f0f0f0"];
 
 const subdivisionModes = {
-  auto: { label: "Auto", multiplier: 1 },
+  auto: { label: "自动", multiplier: 1 },
   eighth: { label: "1/8", multiplier: 2 },
   triplet: { label: "1/8T", multiplier: 3 },
   sixteenth: { label: "1/16", multiplier: 4 },
@@ -234,7 +234,7 @@ function setCameraStatus(value) {
 
 function updateCameraControls() {
   if (cameraToggleButton) {
-    cameraToggleButton.textContent = cameraEnabled ? "Camera Off" : "Camera On";
+    cameraToggleButton.textContent = cameraEnabled ? "关闭摄像头" : "开启摄像头";
     cameraToggleButton.classList.toggle("camera-active", cameraEnabled);
   }
 }
@@ -247,13 +247,13 @@ function stopCamera() {
   cameraEnabled = false;
   cameraVideo.srcObject = null;
   videoCellKey = null;
-  setCameraStatus("Camera off");
+  setCameraStatus("摄像头已关闭");
   updateCameraControls();
 }
 
 async function startCamera() {
   if (!navigator.mediaDevices?.getUserMedia) {
-    setCameraStatus("Camera unsupported");
+    setCameraStatus("当前环境不支持摄像头");
     return;
   }
 
@@ -261,7 +261,7 @@ async function startCamera() {
     cameraStream.getTracks().forEach((track) => track.stop());
   }
 
-  setCameraStatus("Camera starting");
+  setCameraStatus("摄像头启动中");
 
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
@@ -270,10 +270,10 @@ async function startCamera() {
     cameraEnabled = true;
 
     const track = cameraStream.getVideoTracks()[0];
-    setCameraStatus(track?.label ? `Source ${track.label}` : "Camera live");
+    setCameraStatus(track?.label ? `来源：${track.label}` : "摄像头运行中");
   } catch (error) {
     stopCamera();
-    setCameraStatus(error?.name === "NotAllowedError" ? "Camera blocked" : "Camera failed");
+    setCameraStatus(error?.name === "NotAllowedError" ? "未获得摄像头权限" : "摄像头启动失败");
   }
 
   updateCameraControls();
@@ -288,6 +288,18 @@ function resize() {
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  window.requestAnimationFrame(syncMobilePanelSpacing);
+}
+
+function syncMobilePanelSpacing() {
+  if (!rhythmPanel) {
+    return;
+  }
+
+  document.documentElement.style.setProperty(
+    "--mobile-rhythm-panel-height",
+    `${Math.ceil(rhythmPanel.getBoundingClientRect().height)}px`,
+  );
 }
 
 function resetPoints() {
@@ -889,8 +901,8 @@ function render(now) {
   drawBackground();
   drawCells(time, now);
 
-  cellCount.textContent = `${cells.length} cells`;
-  fpsReadout.textContent = `${Math.round(fpsSmooth)} fps`;
+  cellCount.textContent = `${cells.length} 个单元`;
+  fpsReadout.textContent = `${Math.round(fpsSmooth)} FPS`;
 
   requestAnimationFrame(render);
 }
@@ -932,16 +944,16 @@ function renderBeatStrip(activeBeat = 1) {
 
 function updateRhythmReadout() {
   const beat = rhythm.beatIndex + 1;
-  const countText = rhythm.countInBars > 0 ? ` · count ${rhythm.countInBars} bar` : "";
-  const statusText = rhythm.countingIn ? ` · pre ${rhythm.countInBeatsRemaining}` : "";
-  setText(tempoLabel, `${rhythm.bpm} BPM`);
-  setText(meterLabel, `${rhythm.beatsPerBar}/4 · ${getSubdivisionMode().label} · beat ${beat} · bar ${padBar(rhythm.bar)}${countText}${statusText}`);
+  const countText = rhythm.countInBars > 0 ? ` · 预备 ${rhythm.countInBars} 小节` : "";
+  const statusText = rhythm.countingIn ? ` · 剩余 ${rhythm.countInBeatsRemaining} 拍` : "";
+  setText(tempoLabel, `${rhythm.bpm} 拍/分`);
+  setText(meterLabel, `${rhythm.beatsPerBar}/4 · ${getSubdivisionMode().label} · 第 ${beat} 拍 · 第 ${padBar(rhythm.bar)} 小节${countText}${statusText}`);
   setText(clickVolumeLabel, `${Math.round(clickVolume() * 100)}%`);
   renderBeatStrip(beat);
 }
 
 function setTransportText() {
-  setText(playPauseButton, rhythm.running ? "Pause" : "Start");
+  setText(playPauseButton, rhythm.running ? "暂停" : "开始");
 }
 
 function syncRhythmPanelVisibility() {
@@ -1183,6 +1195,11 @@ clickVolumeInput.addEventListener("input", () => {
 window.addEventListener("resize", resize);
 document.addEventListener("pointerdown", handleRhythmPointerDown);
 document.addEventListener("pointermove", handleRhythmPointerMove);
+
+if ("ResizeObserver" in window && rhythmPanel) {
+  const rhythmPanelResizeObserver = new ResizeObserver(syncMobilePanelSpacing);
+  rhythmPanelResizeObserver.observe(rhythmPanel);
+}
 
 resize();
 rebuildPointSet();
