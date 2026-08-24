@@ -12,14 +12,26 @@ The root homepage is the GitHub Pages project entry and project cards open the c
 
 Metronome-based projects should reuse the shared control model where possible: Tempo, Meter, Rhythm, Count In, Offbeat, Click Volume, Start, Reset, and the bottom control panel that auto-hides while playing.
 
+## Shared Metronome Core
+
+Current main versions no longer copy their own `rhythm-panel` markup. The metronome core lives in [`shared/metronome/`](./shared/metronome/):
+
+- [`metronome.js`](./shared/metronome/metronome.js): beat timing and audio engine.
+- [`metronome-panel.js`](./shared/metronome/metronome-panel.js): generates the standard control panel from a `data-metronome-panel` placeholder.
+- [`metronome-panel.css`](./shared/metronome/metronome-panel.css): shared controls, Start / Reset treatment, icons, and base responsive layout.
+- [`README.md`](./shared/metronome/README.md): integration instructions and `data-*` configuration reference.
+
+Visual projects keep only declarative differences such as initial BPM, meter presets, volume, optional Offbeat, theme variables, and visualization-specific synchronization. Historical versions remain iteration snapshots. Offline distributions that cannot reference repository-level shared files may vendor synchronized copies, which must be updated whenever the shared core changes.
+
 ## Contributing
 
 - Contribution workflow for collaborators: [CONTRIBUTING.md](./CONTRIBUTING.md)
 - Repository guidance for AI / coding agents: [AGENTS.md](./AGENTS.md)
+- Xiaohongshu mini-tool specification (Chinese): [MINITOOL.md](./MINITOOL.md)
 
 ## Projects
 
-- [Beat Sync Monitor](./projects/beat_sync_monitor/): a real-time beat monitor using an avsynctest-style data matrix, a centered rhythm module, a camera capture layer, clickable metric explanations, and a hidden metronome control panel. The current main version is v0.2.
+- [Beat Sync Monitor](./projects/beat_sync_monitor/): a real-time beat monitor using an avsynctest-style data matrix, a centered rhythm module, a camera capture layer, clickable metric explanations, and a hidden metronome control panel. The current main version is v0.2; a standalone Xiaohongshu offline mini-tool named “Ambient Beat - Sync Monitor” is also available.
 - [Recursive Cells](./projects/recursive_cells/): a dynamic recursive cell-splitting experiment where static rest points stabilize the topology while the shared metronome drives point motion and split distribution. The current main version v0.3 strengthens the FFmpeg testsrc / signal monitor style and can place a live camera feed into a sticky largest recursive cell. A standalone Xiaohongshu offline mini-tool named “Ambient Beat - Recursive Cells” is also available: a metronome that visualizes rhythmic changes through recursion.
 - [PingPong Topdown](./projects/pingpong_topdown/): a minimalist top-down table tennis rally visualization project. The current main version is v0.4.
 
@@ -34,15 +46,24 @@ Metronome-based projects should reuse the shared control model where possible: T
 ├── AGENTS.md
 ├── shared/
 │   └── metronome/
+│       ├── README.md
 │       ├── metronome.js
+│       ├── metronome-panel.js
 │       └── metronome-panel.css
 └── projects/
     ├── beat_sync_monitor/
         ├── index.html
         ├── README.md
         ├── beat_sync_monitor_0.1/
-        └── beat_sync_monitor_0.2/
+        ├── beat_sync_monitor_0.2/
             ├── index.html
+            ├── sketch.js
+            └── style.css
+        └── beat_sync_monitor_xhs_0.1/
+            ├── index.html
+            ├── metronome.js
+            ├── metronome-panel.js
+            ├── metronome-panel.css
             ├── sketch.js
             └── style.css
     ├── recursive_cells/
@@ -63,6 +84,7 @@ Metronome-based projects should reuse the shared control model where possible: T
         └── recursive_cells_xhs_0.1/
             ├── index.html
             ├── metronome.js
+            ├── metronome-panel.js
             ├── metronome-panel.css
             ├── sketch.js
             └── style.css

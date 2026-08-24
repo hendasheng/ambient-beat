@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>氛围节拍-同步监视器</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./metronome-panel.css" />
+</head>
+<body>
+  <main class="app" aria-label="氛围节拍-同步监视器">
+    <canvas id="stage" aria-label="节拍同步监视画面"></canvas>
+
+    <div class="data-popover" id="dataPopover" role="status" aria-live="polite" hidden>
+      <div class="data-popover-label" id="dataPopoverLabel"></div>
+      <div class="data-popover-value" id="dataPopoverValue"></div>
+      <div class="data-popover-desc" id="dataPopoverDesc"></div>
+    </div>
+
+    <section class="hud" aria-label="Beat Sync Monitor controls">
+      <div class="identity">
+        <span class="version">氛围节拍-同步监视器</span>
+      </div>
+
+      <div class="hud-section">
+        <span class="section-label">摄像头与画面</span>
+        <div class="camera-controls">
+          <button id="cameraToggleButton" type="button">打开摄像头</button>
+          <button id="cameraFacingButton" class="secondary-button" type="button">切到后置</button>
+        </div>
+        <div class="camera-actions">
+          <button id="saveImageButton" class="secondary-button" type="button">保存画面</button>
+          <button id="postNoteButton" class="secondary-button" type="button">发布笔记</button>
+        </div>
+        <label>
+          <span>画面大小</span>
+          <input id="videoScaleInput" type="range" min="24" max="100" value="50" />
+          <output id="videoScaleValue">50%</output>
+        </label>
+        <label>
+          <span>遮罩</span>
+          <input id="videoShadeInput" type="range" min="0" max="90" value="20" />
+          <output id="videoShadeValue">20%</output>
+        </label>
+        <span id="cameraStatus" class="camera-status">摄像头关闭</span>
+      </div>
+    </section>
+
+    <aside class="rhythm-panel" data-metronome-panel data-locale="zh-CN" data-bpm="120" data-bpm-max="220" data-volume="55" data-meters="odd" data-offbeat="true" data-readout="4/4 · 自动 · 第 1 拍 · 第 001 小节" aria-label="节拍控制"></aside>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <script src="./metronome-panel.js"></script>
+  <script src="./metronome.js"></script>
+  <script src="./sketch.js"></script>
+</body>
+</html>

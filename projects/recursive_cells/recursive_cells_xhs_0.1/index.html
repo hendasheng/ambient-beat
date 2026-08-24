@@ -75,80 +75,10 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-    <aside class="rhythm-panel" aria-label="节拍控制">
-      <div class="rhythm-primary">
-        <div class="control-group">
-          <span class="group-label">速度</span>
-          <div class="control-grid">
-            <label for="bpmInput">
-              <span class="label">速度</span>
-              <input id="bpmInput" type="number" min="40" max="240" step="1" value="92" inputmode="numeric" />
-            </label>
-            <label for="meterSelect">
-              <span class="label">拍号</span>
-              <select id="meterSelect">
-                <option value="3/4">3/4</option>
-                <option value="4/4" selected>4/4</option>
-                <option value="5/4">5/4</option>
-                <option value="7/4">7/4</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <span class="group-label">节奏</span>
-          <div class="control-grid">
-            <label for="subdivisionSelect">
-              <span class="label">细分</span>
-              <select id="subdivisionSelect">
-                <option value="auto" selected>自动</option>
-                <option value="eighth">1/8</option>
-                <option value="triplet">1/8T</option>
-                <option value="sixteenth">1/16</option>
-              </select>
-            </label>
-            <label for="countInSelect">
-              <span class="label">预备拍</span>
-              <select id="countInSelect">
-                <option value="0" selected>无</option>
-                <option value="1">1 小节</option>
-                <option value="2">2 小节</option>
-              </select>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div class="control-group beat-group">
-        <span class="group-label">节拍</span>
-        <div class="beat-strip" id="beatStrip" aria-hidden="true"></div>
-        <div class="rhythm-readout">
-          <strong id="tempoLabel">92 拍/分</strong>
-          <span id="meterLabel">4/4 · 自动 · 第 1 拍 · 第 001 小节</span>
-        </div>
-      </div>
-
-      <div class="transport-bar">
-        <label for="offbeatInput" class="offbeat-control">
-          <span class="label">反拍</span>
-          <input id="offbeatInput" type="checkbox" />
-        </label>
-        <label for="clickVolumeInput" class="volume-control">
-          <span class="label">音量</span>
-          <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="45" />
-          <span class="volume-value" id="clickVolumeLabel">45%</span>
-        </label>
-        <div class="transport-controls">
-          <button id="playPauseButton" type="button">开始</button>
-          <button id="rhythmResetButton" class="icon-button" type="button" aria-label="重置" title="重置">
-            <img src="./refresh-01.svg" alt="" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-    </aside>
+    <aside class="rhythm-panel" data-metronome-panel data-locale="zh-CN" data-bpm="92" data-volume="45" data-meters="odd" data-rhythm-label="细分" data-offbeat="true" data-readout="4/4 · 自动 · 第 1 拍 · 第 001 小节" aria-label="节拍控制"></aside>
   </main>
 
+  <script src="./metronome-panel.js"></script>
   <script src="./metronome.js"></script>
   <script src="./sketch.js"></script>
 </body>

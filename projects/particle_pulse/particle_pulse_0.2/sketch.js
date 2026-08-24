@@ -883,7 +883,7 @@ function applyRhythmInputs() {
   rhythm.subdivision = subdivisionModes[subdivisionSelect.value] ? subdivisionSelect.value : "auto";
   rhythm.countInBars = clamp(Math.round(Number(countInSelect.value) || 0), 0, 2);
   rhythm.clickVolume = clamp(Number(clickVolumeInput.value) / 100, 0, 1);
-  setText(clickVolumeLabel, `Click ${Math.round(rhythm.clickVolume * 100)}%`);
+  setText(clickVolumeLabel, `${Math.round(rhythm.clickVolume * 100)}%`);
   configureTransport();
   applyClickVolume();
   const wrappedBeatIndex = ((rhythm.beatIndex % rhythm.meter.numerator) + rhythm.meter.numerator) % rhythm.meter.numerator;

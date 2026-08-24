@@ -121,6 +121,7 @@ WebGL 适合用包内资源做本地渲染；AI 图像处理等重计算（需�
 | --- | --- |
 | 手势 / 拖拽 / 滑动 | `addEventListener('touchstart'/'touchmove'/'touchend')` 或 Pointer Events（`pointerdown`/`move`/`up`） |
 | 拍照 / 录音 | `getUserMedia(...)`，由按钮点击等用户手势触发 + 授权 |
+| 前后摄像头切换 | 停止当前 video tracks 后重新调用 `getUserMedia({ video: { facingMode: { ideal: "user" / "environment" } } })`；不要依赖设备枚举 |
 | 选择图片 / 视频 | `<input type="file">` |
 | 复制文本 | 展示可选中文本，引导用户长按 / 选中复制 |
 | 视觉全屏 | CSS 布局（`100vh` / flex + 隐藏滚动） |
@@ -129,6 +130,11 @@ WebGL 适合用包内资源做本地渲染；AI 图像处理等重计算（需�
 | 保存图片到相册 | `writeTempFile({ data: canvas.toDataURL(...) })`（须完整 data:uri）→ `saveImageToPhotosAlbum({ filePath })`，见 [jsbridge-api.md](./jsbridge-api.md) |
 | 发布笔记 | `postNote({ mediaInfo, title?, content? })` |
 | 跳转 App 搜索 / 用户页等 | `openRedPage({ type, params? })`，`type` 须在白名单内 |
+
+摄像头小工具需要区分两类“切换”：
+
+- **允许**：用 `facingMode: "user"` / `"environment"` 在前置与后置之间切换。切换前停止旧 stream 的全部 tracks，再发起新的 `getUserMedia()`。
+- **禁止**：用 `enumerateDevices()` 获取设备列表、设备名称或 `deviceId` 下拉选择。容器禁用设备枚举，不能把浏览器版的设备列表原样带入小工具。
 
 ---
 

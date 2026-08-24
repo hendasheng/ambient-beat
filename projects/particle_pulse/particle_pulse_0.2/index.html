@@ -6,6 +6,7 @@
   <title>Particle Pulse v0.2</title>
   <script src="https://cdn.jsdelivr.net/npm/tone@15.1.22/build/Tone.js"></script>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../../../shared/metronome/metronome-panel.css" />
   <script type="importmap">
     {
       "imports": {
@@ -83,71 +84,7 @@
       </div>
     </section>
 
-    <aside class="rhythm-panel" aria-label="Metronome controls">
-      <div class="rhythm-primary">
-        <div class="control-group timing-group">
-          <span class="group-label">Tempo</span>
-          <div class="control-grid">
-            <label for="bpmInput">
-              <span class="label">BPM</span>
-              <input id="bpmInput" type="number" min="40" max="240" step="1" value="68" inputmode="numeric" />
-            </label>
-            <label for="meterSelect">
-              <span class="label">Meter</span>
-              <select id="meterSelect">
-                <option value="4/4" selected>4/4</option>
-                <option value="3/4">3/4</option>
-                <option value="2/4">2/4</option>
-                <option value="6/8">6/8</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <div class="control-group feel-group">
-          <span class="group-label">Rally Feel</span>
-          <div class="control-grid">
-            <label for="subdivisionSelect">
-              <span class="label">Rhythm</span>
-              <select id="subdivisionSelect">
-                <option value="auto" selected>Auto</option>
-                <option value="eighth">1/8</option>
-                <option value="triplet">1/8T</option>
-                <option value="sixteenth">1/16</option>
-              </select>
-            </label>
-            <label for="countInSelect">
-              <span class="label">Count In</span>
-              <select id="countInSelect">
-                <option value="0" selected>None</option>
-                <option value="1">1 bar</option>
-                <option value="2">2 bars</option>
-              </select>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div class="control-group beat-group">
-        <span class="group-label">Beat</span>
-        <div class="beat-strip" id="beatStrip" aria-hidden="true"></div>
-        <div class="rhythm-readout">
-          <strong id="tempoLabel">68 BPM</strong>
-          <span id="meterLabel">4/4 · Auto · hit 1, table 1.5</span>
-        </div>
-      </div>
-
-      <div class="transport-bar">
-        <label for="clickVolumeInput" class="volume-control">
-          <span class="label" id="clickVolumeLabel">Click 78%</span>
-          <input id="clickVolumeInput" type="range" min="0" max="100" step="1" value="78" />
-        </label>
-        <div class="transport-controls">
-          <button id="playPauseButton" type="button">Start</button>
-          <button id="rhythmResetButton" type="button">Reset</button>
-        </div>
-      </div>
-    </aside>
+    <aside class="rhythm-panel" data-metronome-panel data-bpm="68" data-volume="78" data-meters="simple" data-feel-label="Rally Feel" data-readout="4/4 · Auto · hit 1, table 1.5" aria-label="Metronome controls"></aside>
 
     <div class="mini-beat" aria-hidden="true">
       <div class="mini-beat-strip" id="miniBeatStrip"></div>
@@ -155,6 +92,7 @@
     </div>
   </main>
 
+  <script src="../../../shared/metronome/metronome-panel.js"></script>
   <script type="module" src="sketch.js"></script>
 </body>
 </html>

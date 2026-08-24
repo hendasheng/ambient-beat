@@ -7,6 +7,22 @@
   --panel: rgba(247, 249, 247, 0.88);
   --panel-line: rgba(15, 16, 16, 0.13);
   --panel-shadow: 0 16px 38px rgba(22, 30, 28, 0.13);
+  --metronome-panel-bg: var(--panel);
+  --metronome-panel-line: var(--panel-line);
+  --metronome-panel-shadow: var(--panel-shadow);
+  --metronome-text: var(--ink);
+  --metronome-muted: var(--soft-ink);
+  --metronome-label: rgba(15, 16, 16, 0.72);
+  --metronome-field-bg: rgba(255, 255, 255, 0.48);
+  --metronome-field-border: rgba(15, 16, 16, 0.16);
+  --metronome-option-bg: #ffffff;
+  --metronome-option-text: #101010;
+  --metronome-beat: rgba(15, 16, 16, 0.16);
+  --metronome-downbeat: rgba(15, 16, 16, 0.28);
+  --metronome-accent: #101010;
+  --metronome-primary-bg: #101010;
+  --metronome-primary-border: #101010;
+  --metronome-primary-text: #f7f9f7;
 }
 
 * {
@@ -52,212 +68,6 @@ canvas {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-}
-
-.rhythm-panel {
-  position: fixed;
-  left: 50%;
-  bottom: 24px;
-  transform: translateX(-50%);
-  display: grid;
-  gap: 5px;
-  width: min(500px, calc(100vw - 456px));
-  min-width: 456px;
-  padding: 8px;
-  border: 1px solid var(--panel-line);
-  border-radius: 8px;
-  background: var(--panel);
-  box-shadow: var(--panel-shadow);
-  backdrop-filter: blur(12px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 220ms ease, transform 260ms ease;
-  transform: translate(-50%, 10px);
-}
-
-body.rhythm-visible .rhythm-panel {
-  cursor: auto;
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, 0);
-}
-
-body.rhythm-pinned .rhythm-panel {
-  cursor: auto;
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, 0);
-}
-
-.rhythm-primary {
-  display: grid;
-  grid-template-columns: 0.96fr 1.04fr;
-  gap: 5px;
-  align-items: stretch;
-}
-
-.control-group {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 5px;
-  min-width: 0;
-  padding: 6px;
-  border: 1px solid rgba(15, 16, 16, 0.08);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.22);
-}
-
-.beat-group {
-  gap: 4px;
-}
-
-.group-label {
-  color: rgba(15, 16, 16, 0.72);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.control-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 5px;
-  min-width: 0;
-}
-
-.rhythm-primary label,
-.volume-control {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
-.rhythm-primary input,
-.rhythm-primary select,
-.volume-control input {
-  width: 100%;
-  min-width: 0;
-  height: 26px;
-  border: 1px solid rgba(15, 16, 16, 0.16);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.48);
-  color: var(--ink);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 0 7px;
-}
-
-.volume-control input[type="range"] {
-  padding: 0;
-  accent-color: #101010;
-}
-
-.transport-bar {
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 5px;
-  align-items: center;
-  justify-content: space-between;
-  min-width: 0;
-  padding: 5px 1px 0;
-  border-top: 1px solid rgba(15, 16, 16, 0.09);
-}
-
-.transport-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  width: 126px;
-  min-width: 0;
-}
-
-.volume-control {
-  display: grid;
-  grid-template-columns: auto 78px;
-  align-items: center;
-  gap: 5px;
-  width: auto;
-  opacity: 0.78;
-}
-
-.volume-control .label {
-  white-space: nowrap;
-}
-
-.transport-controls button {
-  min-width: 0;
-  height: 26px;
-  border: 1px solid rgba(15, 16, 16, 0.18);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.54);
-  color: var(--ink);
-  font: inherit;
-  font-size: 11px;
-  font-weight: 750;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.transport-controls button:first-child {
-  background: #101010;
-  border-color: #101010;
-  color: #f7f9f7;
-}
-
-.beat-strip {
-  display: grid;
-  grid-template-columns: repeat(var(--beats, 4), 1fr);
-  gap: 4px;
-  align-items: center;
-  min-height: 16px;
-  padding: 0 2px;
-}
-
-.beat-dot {
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(15, 16, 16, 0.16);
-}
-
-.beat-dot.downbeat {
-  height: 9px;
-  background: rgba(15, 16, 16, 0.28);
-}
-
-.beat-dot.active {
-  background: #101010;
-}
-
-.beat-dot.downbeat.active {
-  box-shadow: 0 0 0 3px rgba(15, 16, 16, 0.08);
-}
-
-.rhythm-readout {
-  display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-
-.rhythm-readout strong {
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-.rhythm-readout span {
-  overflow: hidden;
-  color: var(--soft-ink);
-  font-size: 9.5px;
-  font-weight: 650;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .mini-beat {
@@ -325,98 +135,11 @@ body.rhythm-pinned .mini-beat {
     min-height: 420px;
   }
 
-  .rhythm-panel {
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    transform: translateY(10px);
-    width: auto;
-    min-width: 0;
-    padding: 8px;
-  }
-
-  body.rhythm-visible .rhythm-panel {
-    transform: translateY(0);
-  }
-
-  body.rhythm-pinned .rhythm-panel {
-    transform: translateY(0);
-  }
-
-  .rhythm-primary {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .control-group {
-    padding: 7px;
-  }
-
-  .transport-bar {
-    grid-template-columns: 1fr;
-    justify-content: stretch;
-    padding: 6px 0 0;
-  }
-
-  .transport-controls {
-    justify-self: stretch;
-    width: auto;
-  }
-
-  .volume-control {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .rhythm-readout {
-    grid-template-columns: 1fr;
-    gap: 3px;
-  }
-
 }
 
 @media (max-width: 680px) and (orientation: portrait) {
   .stage {
     height: 100dvh;
     min-height: 100dvh;
-  }
-
-  .rhythm-panel {
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    max-height: calc(100dvh - 16px);
-    padding: 6px;
-    overflow-y: auto;
-  }
-
-  .rhythm-primary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 4px;
-  }
-
-  .control-group {
-    gap: 4px;
-    padding: 5px;
-  }
-
-  .rhythm-primary input,
-  .rhythm-primary select,
-  .volume-control input {
-    height: 30px;
-  }
-
-  .transport-bar {
-    grid-template-columns: minmax(0, 1fr) 132px;
-    gap: 7px;
-    padding-top: 5px;
-  }
-
-  .transport-controls button {
-    height: 32px;
-  }
-
-  .rhythm-readout {
-    grid-template-columns: 68px minmax(0, 1fr);
-    gap: 5px;
   }
 }

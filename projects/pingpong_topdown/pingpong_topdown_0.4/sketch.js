@@ -12,7 +12,7 @@ const countInSelect = document.getElementById("countInSelect");
 const clickVolumeInput = document.getElementById("clickVolumeInput");
 const clickVolumeLabel = document.getElementById("clickVolumeLabel");
 const playPauseButton = document.getElementById("playPauseButton");
-const resetButton = document.getElementById("resetButton");
+const rhythmResetButton = document.getElementById("rhythmResetButton");
 const beatStrip = document.getElementById("beatStrip");
 const miniBeatStrip = document.getElementById("miniBeatStrip");
 const miniBeatReadout = document.getElementById("miniBeatReadout");
@@ -511,7 +511,7 @@ function applyRhythmInputs() {
   if (clickVolumeInput) {
     world.clickVolume = clamp(Number(clickVolumeInput.value) / 100, 0, 1);
   }
-  setText(clickVolumeLabel, `Click ${Math.round(world.clickVolume * 100)}%`);
+  setText(clickVolumeLabel, `${Math.round(world.clickVolume * 100)}%`);
   configureTransport();
   applyClickVolume();
 
@@ -1756,7 +1756,7 @@ if (playPauseButton) {
   playPauseButton.addEventListener("click", togglePlayback);
 }
 if (resetButton) {
-  resetButton.addEventListener("click", resetPlayback);
+  rhythmResetButton.addEventListener("click", resetPlayback);
 }
 applyRhythmInputs();
 updateTransportButtons();

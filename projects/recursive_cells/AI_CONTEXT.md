@@ -98,17 +98,11 @@ Start / Pause 不应刷新递归分布，也不能打乱 metronome 节拍。v0.3
 
 小红书版对外标题使用 `氛围节拍-递归细胞`，用于页面标题、HUD 显示名、可访问性标签和发布笔记标题。不要恢复成 `Recursive Cells v0.3` 这类仓库内部版本名，也不要只写 `递归细胞` 而丢掉 `氛围节拍` 系列名。
 
-小工具目录必须自包含：`metronome.js` 与 `metronome-panel.css` 已从 `shared/metronome/` 复制到目录内，HTML 仅使用 `./` 相对路径。不要重新引入外部 CDN、仓库上级路径、内联脚本、module 脚本或联网请求。
-
-受限容器适配包括：移除 `enumerateDevices()` 与 fullscreen API；摄像头只在按钮点击后调用 `getUserMedia({ video: true, audio: false })`；使用安全区组合变量 `var(--safe-area-inset-*, env(safe-area-inset-*, 0px))`。
-
-Native 操作仅使用 `.codex/skills/minitool-zip-builder/references/jsbridge-api.md` 列出的 `window.xhs.miniTool.*` API。当前保存流程为 `canvas.toDataURL()` → `writeTempFile()` → `saveImageToPhotosAlbum()`，发布流程为 `postNote()` 图文笔记。
-
-当前上传包为 `artifacts/recursive_cells_xhs_0.1.zip`。重新打包时应压缩小工具目录的内容，而不是目录本身，确保 ZIP 根目录直接包含 `index.html`。
-
-小红书版移动端面板应与 v0.3 保持相同逻辑：上下控制区常驻、HUD 两栏紧凑布局、节拍区双列紧凑布局，并通过 `ResizeObserver` 和 `--mobile-rhythm-panel-height` 避免覆盖。保存 / 发布按钮不是规范必选项；当前作为可选 JSBridge 操作放在 Camera 参数组内，不要放到页面右上角，以免与小红书容器原生按钮重叠。
+`artifacts/recursive_cells_xhs_0.1.zip` 是当前源码更新前的历史上传包；下次用户明确要求打包时需要重新生成，不能把它视为与源码同步的最新产物。
 
 小红书版面向用户的控制文案使用中文，UI 字体使用中文无衬线系统字体栈，速度参数与读数分别显示“速度”和“拍/分”；`FPS`、`1/8`、`1/8T`、`1/16` 等标记保持原样。不要为了中文化修改 DOM ID、select value、节拍状态字段或 Canvas 内的工程监视器标签，因此 Canvas cell 中的 `BPM` 工程字段仍保留，Canvas 内工程字段也继续使用等宽字体以保持 signal monitor 风格。
+
+所有小工具通用规则统一见仓库根目录 [`MINITOOL.md`](../../MINITOOL.md)，本文件不重复维护端能力、摄像头切换、操作优先级、安全区、容器避让、JSBridge 或打包规则。
 
 ## v0.1 记录
 
