@@ -6,6 +6,17 @@
 - `metronome-panel.js`：生成统一的节拍控制面板 DOM。
 - `metronome-panel.css`：面板容器、全部内部控件、Start / Reset、显示状态和完整响应式布局，是 `rhythm-panel` 的唯一结构样式来源。
 
+## 第三方依赖
+
+- 库：[Lucide Icons](https://lucide.dev/icons/)
+- 固定版本：`0.468.0`
+- 使用范围：共享节拍面板的运输按钮。
+- 图标名称：播放 `play`、暂停 `pause`、重置 `rotate-ccw`。
+- 选用原因：图标名称稳定、线性风格统一，并可在普通 Web 页面中直接通过浏览器库渲染。
+- 在线加载：在 `metronome-panel.js` 之前加载 unpkg UMD 浏览器包。
+- 离线处理：小红书小工具不加载 CDN；同一面板脚本使用对应 Lucide 路径的内联 SVG 回退。
+- 源码位置：图标渲染和离线路径位于 [`metronome-panel.js`](./metronome-panel.js)，尺寸与状态样式位于 [`metronome-panel.css`](./metronome-panel.css)。
+
 页面只保留一个占位元素，并在项目脚本之前加载面板脚本：
 
 ```html
@@ -17,6 +28,7 @@
   data-offbeat="true"
 ></aside>
 
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
 <script src="../../../shared/metronome/metronome-panel.js"></script>
 <script src="../../../shared/metronome/metronome.js"></script>
 <script src="sketch.js"></script>

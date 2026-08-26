@@ -183,7 +183,7 @@ body.rhythm-pinned .rhythm-panel {
 
 .rhythm-panel .transport-bar {
   display: grid;
-  grid-template-columns: max-content 220px 170px;
+  grid-template-columns: max-content 220px minmax(0, 1fr);
   gap: 7px;
   align-items: center;
   min-width: 0;
@@ -228,14 +228,16 @@ body.rhythm-pinned .rhythm-panel {
   background: var(--metronome-field-bg, rgba(255, 255, 255, 0.08));
   padding: 0;
   accent-color: var(--metronome-accent, #ffffff);
+  transition: background-color 160ms ease, border-color 160ms ease;
 }
 
 .rhythm-panel .transport-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px;
+  grid-template-columns: max-content 34px;
   gap: 6px;
+  justify-content: end;
   justify-self: end;
-  width: 170px;
+  width: auto;
   min-width: 0;
 }
 
@@ -251,6 +253,7 @@ body.rhythm-pinned .rhythm-panel {
   font-weight: var(--metronome-button-font-weight, 800);
   cursor: pointer;
   white-space: nowrap;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
 .rhythm-panel .transport-controls button:first-child {
@@ -276,7 +279,7 @@ body.rhythm-pinned .rhythm-panel {
   padding: 0;
 }
 
-.rhythm-panel .transport-controls .icon-button svg {
+.rhythm-panel .transport-controls svg {
   width: 18px;
   height: 18px;
   fill: none;
@@ -284,6 +287,46 @@ body.rhythm-pinned .rhythm-panel {
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.rhythm-panel .transport-toggle {
+  position: relative;
+  width: 64px;
+}
+
+.rhythm-panel .transport-toggle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #173c24;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.32);
+}
+
+.rhythm-panel .transport-toggle.is-playing::after {
+  background: #238b45;
+}
+
+.rhythm-panel .transport-toggle.signal-pulse::after {
+  animation: metronome-signal-pulse 220ms ease-out;
+}
+
+@keyframes metronome-signal-pulse {
+  0% {
+    background: #75ff9d;
+    box-shadow: 0 0 3px #39ff70, 0 0 8px rgba(57, 255, 112, 0.9);
+  }
+  100% {
+    background: #238b45;
+    box-shadow: 0 0 0 rgba(57, 255, 112, 0);
+  }
+}
+
+.rhythm-panel .transport-toggle svg {
+  display: none;
 }
 
 .rhythm-panel input:focus-visible,
@@ -369,6 +412,7 @@ body.rhythm-pinned .rhythm-panel {
   }
 
   .rhythm-panel .transport-controls {
+    grid-template-columns: minmax(0, 1fr) 34px;
     justify-self: stretch;
     width: auto;
     gap: 4px;
@@ -377,14 +421,35 @@ body.rhythm-pinned .rhythm-panel {
   .rhythm-panel .transport-controls button {
     height: 30px;
   }
+
+  .rhythm-panel .transport-toggle {
+    display: grid;
+    place-items: center;
+    width: auto;
+    padding: 0;
+  }
+
+  .rhythm-panel .transport-toggle .button-label {
+    display: none;
+  }
+
+  .rhythm-panel .transport-toggle svg {
+    display: block;
+  }
 }
 
 @media (max-width: 680px) and (orientation: portrait) {
   .rhythm-panel .transport-bar {
-    grid-template-columns: max-content minmax(0, 1fr) 170px;
+    grid-template-columns: max-content minmax(0, 1fr) var(--metronome-mobile-transport-width, 88px);
   }
 
   .rhythm-panel:not(.has-offbeat) .transport-bar {
-    grid-template-columns: minmax(0, 1fr) 170px;
+    grid-template-columns: minmax(0, 1fr) var(--metronome-mobile-transport-width, 88px);
+  }
+
+  .rhythm-panel .volume-control {
+    justify-self: start;
+    width: calc(100% - var(--metronome-mobile-volume-gap, 12px));
+    max-width: var(--metronome-mobile-volume-width, 260px);
   }
 }

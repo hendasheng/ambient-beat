@@ -6,6 +6,40 @@
     odd: ["3/4", "4/4", "5/4", "7/4"],
   };
 
+  const iconPaths = {
+    play: '<path d="m5 5 14 7-14 7V5z" />',
+    pause: '<rect width="4" height="16" x="6" y="4" rx="1" /><rect width="4" height="16" x="14" y="4" rx="1" />',
+    "rotate-ccw": '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" />',
+  };
+
+  function icon(name) {
+    if (window.lucide) {
+      return `<i data-lucide="${name}" aria-hidden="true"></i>`;
+    }
+    return `<svg viewBox="0 0 24 24" aria-hidden="true">${iconPaths[name]}</svg>`;
+  }
+
+  function setPlaying(button, playing) {
+    if (!button) return;
+    const panel = button.closest("[data-metronome-panel]");
+    const zh = panel && panel.dataset.locale === "zh-CN";
+    const label = playing ? (zh ? "暂停" : "Pause") : (zh ? "播放" : "Play");
+    const iconName = playing ? "pause" : "play";
+    button.innerHTML = `${icon(iconName)}<span class="button-label">${label}</span>`;
+    button.setAttribute("aria-label", label);
+    button.title = label;
+    button.classList.toggle("is-playing", playing);
+    if (!playing) button.classList.remove("signal-pulse");
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  function pulse(button) {
+    if (!button || !button.classList.contains("is-playing")) return;
+    button.classList.remove("signal-pulse");
+    void button.offsetWidth;
+    button.classList.add("signal-pulse");
+  }
+
   function option(value, selectedValue, label) {
     const selected = value === selectedValue ? " selected" : "";
     return `<option value="${value}"${selected}>${label || value}</option>`;
@@ -109,17 +143,16 @@
           <span class="volume-value" id="clickVolumeLabel">${volume}%</span>
         </label>
         <div class="transport-controls">
-          <button id="playPauseButton" type="button">${text.start}</button>
+          <button id="playPauseButton" class="transport-toggle" type="button"></button>
           <button id="rhythmResetButton" class="icon-button" type="button" aria-label="${text.reset}" title="${text.reset}">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20.49 15A9 9 0 1 1 20.29 8.5" />
-              <path d="M15 9h3c1.41 0 2.12 0 2.56-.44C21 8.12 21 7.41 21 6V3" />
-            </svg>
+            ${icon("rotate-ccw")}
           </button>
         </div>
       </div>`;
+    setPlaying(panel.querySelector("#playPauseButton"), false);
+    if (window.lucide) window.lucide.createIcons();
   }
 
   document.querySelectorAll("[data-metronome-panel]").forEach(renderPanel);
-  window.AmbientMetronomePanel = { render: renderPanel };
+  window.AmbientMetronomePanel = { render: renderPanel, setPlaying, pulse };
 }());

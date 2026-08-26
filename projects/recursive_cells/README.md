@@ -15,6 +15,12 @@ v0.2 在 v0.1 的全屏递归切割基础上引入 FFmpeg `testsrc` 风格配色
 
 v0.3 以 v0.2 之后的当前实验状态作为新主版本，进一步加强 signal monitor / testsrc 工程感：浅层 cell 更接近白、黄、青、绿、品红、红、蓝、黑的标准彩条顺序，部分中层 cell 使用灰阶 ramp；较大的递归块会稀疏显示单行节拍和工程信息，例如 `BPM 92`、`BEAT 1/4`、`BAR 001`、`PH 0.314`、`TC 00:01:08`、`FPS 60`、`SIG LOCK`；文本尺寸会根据 cell 宽高连续动态 fit，接近最小可读尺寸时先降低透明度再消失，每类信息每帧最多出现 3 次。少量大 cell 会显示短准星或角 tick，作为工程校准标记，但不形成连续边框。左上参数面板按 Structure、Preview、Camera 分组排列：Structure 控制 Points、Min Size、Irregularity 和 Reset Seed；Preview 控制未启动节拍时的 Motion / Speed，自由预览默认值为 Motion 0.45、Speed 0.20；Camera 可开启 / 关闭摄像头并选择摄像机源，采集画面会以 cover 模式绘制到一个带粘性的承载 cell 中，只有当前承载 cell 消失或缩小到阈值以下时才切换到当前最大的 cell，避免画面闪烁。节拍控制面板复用共享的 Offbeat / Click / Start / Reset 底栏布局，Offbeat 只增加反拍点击声，不驱动画面变化。移动端上下控制区全部常驻：视觉参数使用两栏紧凑布局，BPM、Meter、Motion、Count In、Beat 状态和运输栏使用底部紧凑布局；上方面板按底部实际高度限制最大高度，极小屏幕时分别内部滚动而不会覆盖。Start / Pause 保持 metronome 节拍时钟干净，只对点位和切割分布做短暂视觉过渡，避免递归分布像被刷新。`F` 快捷键用于切换 fullscreen，表单控件聚焦时不会触发。
 
+## 依赖与参考
+
+- 递归切割机制参考 Houdini `set_recursive_cells` 的思路，只迁移“静态 rest 点稳定拓扑、运动点推动显示边界”的核心机制，不复制完整 Houdini 网络。
+- 当前主版本没有项目级第三方运行库；共享节拍器和 Lucide 图标信息见 [`shared/metronome/README.md`](../../shared/metronome/README.md)。
+- [`icon_generator/`](./icon_generator/) 单独使用 [Hugeicons](https://hugeicons.com/) `@hugeicons/core-free-icons@4.2.1` 的 `HandsClappingIcon`，通过 jsDelivr 动态导入，只服务于图标生成工具，不进入主版本运行链路。
+
 ## Versions
 
 - [recursive_cells_xhs_0.1](./recursive_cells_xhs_0.1/)：基于 v0.3 的小红书小工具分发版，对外标题为“氛围节拍-递归细胞”，不替代当前 Web 主版本；通用规范见 [`MINITOOL.md`](../../MINITOOL.md)。

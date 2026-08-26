@@ -15,6 +15,7 @@
 - 目录命名使用 `projects/<project>/<project>_xhs_<version>/`。
 - 目录必须自包含，只用 `./` 相对路径，不引用仓库上级路径、CDN 或其他网络资源。
 - 共享节拍器的 `metronome.js`、`metronome-panel.js` 和 `metronome-panel.css` 可以内置副本，但必须从 `shared/metronome/` 同步生成。
+- Web 主版本使用的第三方依赖在离线小工具中必须改为包内文件或内联实现，不能保留 CDN / 网络引用；库名、来源和固定版本仍记录在对应项目或共享模块 README 中，不在本文件重复维护依赖清单。
 - 页面脚本使用经典外链脚本，不使用内联脚本、行内事件、module、动态 import、Worker 或联网请求。
 
 ## 容器能力

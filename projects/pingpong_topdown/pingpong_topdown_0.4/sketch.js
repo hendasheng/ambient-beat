@@ -372,7 +372,7 @@ function setHudBeat(value) {
 
 function setTransportText() {
   if (playPauseButton) {
-    setText(playPauseButton, world.isPlaying ? "Pause" : "Start");
+    window.AmbientMetronomePanel.setPlaying(playPauseButton, world.isPlaying);
   }
 }
 
@@ -1186,6 +1186,7 @@ function startNextShot(now, visualAge = 0, playAudio = true) {
   setHudShot(world.current.shotType);
   setHudPower(world.current.power.toFixed(2));
   updateRhythmLabels(beatNumber);
+  window.AmbientMetronomePanel.pulse(playPauseButton);
   world.beatIndex += 1;
 }
 

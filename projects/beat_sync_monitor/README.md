@@ -10,6 +10,10 @@ v0.2 的画面在 v0.1 的同步监视基础上加入摄像头输入：可以开
 
 控制面板由 `shared/metronome/` 的统一 `rhythm-panel` 模块生成和定型；本项目只通过配置与 CSS 变量设置内容和主题。面板未播放时常驻，播放后自动隐藏，靠近底部或点击画面时显示，并提供 BPM、Meter、Rhythm、Count In、Offbeat、Click Volume、Start 和 Reset。
 
+## 依赖与参考
+
+当前主版本没有项目级第三方运行库；节拍时序、面板和 Lucide 图标的依赖信息统一见 [`shared/metronome/README.md`](../../shared/metronome/README.md)。视觉语言参考 FFmpeg `avsynctest` 的测试画面组织方式，但数据结构、交互与实现均为本项目重新设计。
+
 ## Versions
 
 - [beat_sync_monitor_xhs_0.1](./beat_sync_monitor_xhs_0.1/)：基于 v0.2 的小红书小工具离线分发版，对外标题为“氛围节拍-同步监视器”；通用规范见 [`MINITOOL.md`](../../MINITOOL.md)。

@@ -851,6 +851,7 @@ function triggerRhythmBeat(time) {
   const isCountIn = rhythm.beatIndex < 0;
   const accent = activeBeat === 1;
   playClick(accent, time);
+  window.AmbientMetronomePanel.pulse(playPauseButton);
   rhythmPulse = Math.min(1.6, rhythmPulse + (accent ? 1.1 : 0.62));
   rhythmAccent = accent ? 1 : Math.max(rhythmAccent, 0.32);
   updateRhythmLabels(activeBeat, isCountIn);
@@ -900,11 +901,11 @@ async function toggleRhythmPlayback() {
     rhythm.nextBeatTime = Tone.Transport.seconds + 0.06;
     rhythm.beatIndex = -rhythm.countInBars * rhythm.meter.numerator;
     rhythm.countInBeatsRemaining = rhythm.countInBars * rhythm.meter.numerator;
-    setText(playPauseButton, "Pause");
+    window.AmbientMetronomePanel.setPlaying(playPauseButton, true);
     showRhythmPanel(1800);
   } else {
     Tone.Transport.pause();
-    setText(playPauseButton, "Start");
+    window.AmbientMetronomePanel.setPlaying(playPauseButton, false);
     syncRhythmPanelVisibility();
   }
 }

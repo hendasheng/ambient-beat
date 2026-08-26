@@ -44,15 +44,8 @@ PR 描述里至少写三点：
 - Confirmed project links work
 ```
 
-## 目录约定
+## 仓库结构与部署
 
-- 根目录 `index.html` 是整个网站首页，只放项目入口。
-- 每个项目放在 `projects/` 下。
-- 项目自己的版本、说明和实验文件放在项目目录内。
-- `projects/pingpong_topdown/` 是 PingPong Topdown 项目目录。
+仓库入口、项目目录和本地预览方式统一见 [README](./README.md)。PR 合并到 `main` 后会由 GitHub Actions workflow 部署 Pages；如果页面没有立即更新，请先在 `Actions` 中检查部署状态。
 
-## GitHub Pages
-
-`main` 更新后会触发 GitHub Pages 部署。
-
-如果 PR 合并后页面没有立刻更新，通常是 GitHub Actions 还在部署。可以到仓库的 `Actions` 页面查看状态。
+新增公开资源时，请在 PR 描述中说明访问路径，并确认 Pages workflow 会把它复制进部署 artifact。具体执行约束由维护者和编码助手使用的 [AGENTS.md](./AGENTS.md) 维护，不在贡献说明中重复。

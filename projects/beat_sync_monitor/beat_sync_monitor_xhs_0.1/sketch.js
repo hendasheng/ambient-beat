@@ -56,6 +56,7 @@
     offbeatEnabled: Boolean(offbeatInput?.checked),
     clickVolume: Number(clickVolumeInput.value) / 100,
     onChange: () => updateReadout(),
+    onBeat: () => window.AmbientMetronomePanel.pulse(playPauseButton),
   });
 
   const state = metronome.state;
@@ -764,7 +765,7 @@
   }
 
   function setTransportText() {
-    setText(playPauseButton, state.running ? "暂停" : "开始");
+    window.AmbientMetronomePanel.setPlaying(playPauseButton, state.running);
   }
 
   function showRhythmPanel(duration = 2400) {

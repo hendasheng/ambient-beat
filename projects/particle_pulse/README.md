@@ -14,6 +14,14 @@ https://github.com/cullenwebber/three-particles
 
 参考重点是粒子系统、Three.js / shader 表达、光影层次和“粒子被节奏驱动”的可能性。Particle Pulse 会以 Ambient Beat 的节拍器逻辑重新设计视觉结构、运动方式和交互，不复制参考项目的代码、构图或具体视觉外观。
 
+## 第三方依赖
+
+- [Three.js](https://threejs.org/) `0.182.0`：通过 jsDelivr ES module 与 import map 加载，用于 GPU 粒子、材质、相机和渲染；v0.1 与 v0.2 均使用。
+- [Tone.js](https://tonejs.github.io/) `15.1.22`：通过 jsDelivr 加载，v0.2 用于节拍音频与 transport 时钟。
+- 共享运输按钮使用 Lucide，版本与加载规则统一见 [`shared/metronome/README.md`](../../shared/metronome/README.md)。
+
+当前项目是普通互联网 Web 项目，因此直接声明这些网络依赖；若以后创建离线分发版，必须按 [`MINITOOL.md`](../../MINITOOL.md) 将依赖改为包内资源。
+
 ## Versions
 
 - [particle_pulse_0.2](./particle_pulse_0.2/)：在 v0.1 的视觉验证基线上接入 PingPong 0.4 的节拍控制、拍点显示、count-in、点击音量和 transport。

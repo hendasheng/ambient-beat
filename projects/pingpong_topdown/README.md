@@ -32,6 +32,11 @@
 - 需求说明：[requirements.md](./requirements.md)
 - 动画状态机说明：[animation_state_spec.md](./animation_state_spec.md)
 
+## 第三方依赖
+
+- [Tone.js](https://tonejs.github.io/) `15.1.22`：通过 jsDelivr 加载，负责击球、落台音色和 v0.2 起的节拍 transport。
+- 当前主版本的运输按钮使用 Lucide，版本与加载方式统一见 [`shared/metronome/README.md`](../../shared/metronome/README.md)。
+
 ## 移动端开发预览
 
 使用 VS Code Live Server 时，让电脑和手机连接同一个局域网，并按照仓库根目录 [README.md](../../README.md#本地开发与局域网访问) 配置监听地址。当前版本可直接通过以下路径预览：

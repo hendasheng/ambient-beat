@@ -95,6 +95,7 @@ const metronome = window.AmbientMetronome.createMetronome({
   onChange: () => updateRhythmReadout(),
   onBeat: (state, accent) => {
     beatEnergy = Math.max(beatEnergy, accent && !state.countingIn ? 1.25 : 1);
+    window.AmbientMetronomePanel.pulse(playPauseButton);
   },
 });
 
@@ -986,7 +987,7 @@ function updateRhythmReadout() {
 }
 
 function setTransportText() {
-  setText(playPauseButton, rhythm.running ? "Pause" : "Start");
+  window.AmbientMetronomePanel.setPlaying(playPauseButton, rhythm.running);
 }
 
 function syncRhythmPanelVisibility() {
