@@ -8,6 +8,7 @@
 - `safeSplit()` 必须限制局部偏移并保留最小边距，避免 cell 重叠、反向或过度压扁。
 - 显示切割比例按绝对 beat / bar 推进到持久目标，不在每拍后回到初始分割。
 - Start / Pause 不得给节拍时钟增加全局 offset。切换瞬间只使用 `beginPointTransition()` 和 `beginSplitTransition()` 做短视觉过渡。
+- Count In 是预备阶段但不冻结画面：点位与切割继续自由预览运动，由 `countInPreviewActive` 阻止它们提前进入节拍驱动；正式第 1 拍到来后通过短过渡切换到节拍运动。
 - v0.3 保持 FFmpeg `testsrc` / signal monitor 的硬边测试图卡语言，不改成渐变、彩色 Mondrian 或密集装饰界面。
 - 摄像头以 cover 模式绘制到带粘性的承载 cell；只有原 cell 消失或小于阈值时才重新选择最大的 cell，避免逐帧跳动。
 - 大 cell 的工程字段必须稀疏：字号通过 `fitTextSize()` 连续适配，接近阈值时由 `cellTextAlpha()` 渐隐，每类字段每帧最多出现 3 次。
@@ -42,8 +43,10 @@ v0.3 使用标准测试彩条与灰阶 ramp 填充 cell，不绘制额外内部�
 ## 当前特有状态
 
 - Web 主版本：`recursive_cells_0.3/`。
-- 小工具源码：`recursive_cells_xhs_0.1/`，对外名称为“氛围节拍-递归细胞”。
-- `artifacts/recursive_cells_xhs_0.1.zip` 是源码后续更新前的历史包；只有用户明确要求时才重新打包。
+- 当前小工具源码：`recursive_cells_xhs_0.2/`，基于 Web v0.3 创建，对外名称为“氛围节拍-递归细胞”。
+- Web v0.3 与小工具 v0.2 均使用 `countInPreviewActive`：Count In 保持自由预览运动，正式第 1 拍再切入节拍驱动。
+- 小工具 v0.2 已于 2026-08-27 生成本地上传包 `recursive_cells_xhs_0.2.zip`；包不纳入仓库，重新打包仍需用户明确要求。
+- `recursive_cells_xhs_0.1/` 已恢复为 2026-08-20 的历史状态；`artifacts/recursive_cells_xhs_0.1.zip` 是历史上传包。只有用户明确要求时才重新打包。
 - Web 版摄像头允许设备选择；离线小工具必须遵守 `MINITOOL.md` 的 `facingMode` 切换与端能力限制。
 - 小工具面向用户的控件使用中文；DOM ID、select value 和 Canvas 工程字段保持现有英文工程命名。
 
@@ -53,7 +56,7 @@ v0.3 使用标准测试彩条与灰阶 ramp 填充 cell，不绘制额外内部�
 - Points、Min Size、Irregularity、Motion、Speed 和 Reset Seed 的响应符合当前语义。
 - Start / Pause 时音频、readout、信号灯与视觉拍点同步，递归分布只短暂过渡而不刷新。
 - 摄像头承载 cell 保持粘性，尺寸阈值切换时没有明显闪烁。
-- `F` 可切换 fullscreen，表单控件聚焦时不会误触发。
+- Web 主版本的 `F` 可切换 fullscreen；小工具版不包含 fullscreen 调用。
 
 ## 后续方向
 

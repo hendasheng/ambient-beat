@@ -24,7 +24,7 @@
 - 轨迹：使用独立线条表现每一拍路径，并用短促扩散曲线表现击球瞬间
 - 节拍：输入 BPM 和拍号后，每次击球固定在整拍，每次落台固定在半拍，形成“1 哒 2 哒”的节拍器式回合
 - 控制：通过 Start/Pause 和 Reset 控制回合；Count In 不再是空等，而是在台外随机一侧生成发球准备动作
-- 声音：使用 Tone.js 表现击球和球台落点；第一拍使用更低、更柔和的 clack 重音，与普通拍形成音色区分
+- 声音：共享 metronome 输出唯一节拍状态，Tone.js 只表现击球和球台落点；第一拍使用更低、更柔和的 clack 重音。项目明确关闭共享 Offbeat，因为半拍已经由球落台声表达
 - 限制：球本体不能做拖尾效果
 
 ## 文档
@@ -34,7 +34,7 @@
 
 ## 第三方依赖
 
-- [Tone.js](https://tonejs.github.io/) `15.1.22`：通过 jsDelivr 加载，负责击球、落台音色和 v0.2 起的节拍 transport。
+- [Tone.js](https://tonejs.github.io/) `15.1.22`：通过 jsDelivr 加载，只负责击球和落台的项目音色；v0.4 的 transport、Count In 和状态输出由共享 `metronome.js` 负责。共享模块具备 Offbeat 能力，但本项目显式关闭，半拍反馈使用落台声。
 - 当前主版本的运输按钮使用 Lucide，版本与加载方式统一见 [`shared/metronome/README.md`](../../shared/metronome/README.md)。
 
 ## 移动端开发预览
@@ -47,7 +47,7 @@ http://<电脑局域网 IPv4>:5500/projects/pingpong_topdown/pingpong_topdown_0.
 
 ## 版本
 
-- `pingpong_topdown_0.4`：从 v0.3 复制出新版本，保留底部控制面板、mini beat 和第一拍低频 clack 重音。竖屏移动端将球台旋转为上下结构，并按浏览器实际可见高度限制尺寸；球台和下方节拍提示作为整体居中，移除球台投影，缩小竖屏球网与边线，并将移动端 Canvas 清晰度上限提高到 `3x DPR`。底部控制面板通过点击画面空白区域显示或隐藏，内部控件操作时保持展开；移除左右上角 HUD 与音色抽屉，减少移动端遮挡。
+- `pingpong_topdown_0.4`：从 v0.3 复制出新版本，保留底部控制面板、mini beat 和第一拍低频 clack 重音，并迁移到共享 metronome 的可选状态输出，统一 transport、Count In、拍内进度和信号灯；Tone.js 只保留项目音色。共享 Offbeat 能力在本项目中显式关闭，因为半拍由球落台声表达。竖屏移动端将球台旋转为上下结构，并按浏览器实际可见高度限制尺寸；球台和下方节拍提示作为整体居中，移除球台投影，缩小竖屏球网与边线，并将移动端 Canvas 清晰度上限提高到 `3x DPR`。底部控制面板通过点击画面空白区域显示或隐藏，内部控件操作时保持展开；移除左右上角 HUD 与音色抽屉，减少移动端遮挡。
 - `pingpong_topdown_0.3`：从 v0.2 复制出新版本，主要调整 UI 和视觉样式。`rhythm-panel` 固定在画面正下方，和上方球台形成类似真实球台与记分牌的空间关系；内部按三层组织：上层 `Tempo / Rally Feel`，中层 `Beat` 与 `beat-strip`，底层为轻量 transport bar。Start/Reset 放在右侧，Click Volume 改为左侧短控件并显示当前百分比，不再占满面板宽度。`rhythm-panel` 在暂停/未开始状态常驻显示；开始播放后才启用自动隐藏，鼠标靠近底部或点击/键盘操作时显示，并延迟淡出。面板隐藏时显示迷你 beat：随球台宽度取约 1/4 宽度，避开球台投影，下方显示 BPM 和 meter；面板显示或暂停常驻时迷你 beat 自动隐藏。HUD 改为左上 hover 面板，默认完全隐藏，靠近左侧热区显示；内容按单列层级组织为 `Phase / Shot`、`Beat / Power` 和 `F Fullscreen` 提示，显示值从内部状态名整理为可读文案。`F` 键可切换全屏。右上 Bounce / Hit 音色选择整理为 hover sound drawer，默认完全隐藏，鼠标靠近右侧热区展开、离开收起；左右抽屉都补了不可见 hover bridge，避免鼠标跨空隙时闪退。非全屏沿用较克制的球台尺寸，全屏时放宽球台尺寸；预备发球台外投影改成更大、更轻的地面软影。DOM 更新也做了轻量优化：beat dots 复用节点，HUD/readout 文本只在变化时写入，pointermove 只在播放时节流处理。
 - `pingpong_topdown_0.2`：在 v0.1 的回合逻辑上增加 BPM、拍号、Rhythm、Count In、Click Volume、Start/Pause 和 Reset 控制。每一球总时长等于一个节拍，默认击球发生在整拍起点，落台发生在 0.5 拍，下一次击球发生在下一拍；当前已接入 Tone.Transport 音频时钟、第 1 拍重拍，以及节拍器式击球 / 落台声音角色。Count In 会在台外随机一侧生成发球准备动画：小球上抛、下落，并在预备拍结束时接到第一拍击球。当前视觉为白背景、`#4A71CB` 真实比例球台、35% 黑色边线 / 中线、白色网线、黑球黑轨迹。默认 `68 BPM / 4/4 / Auto / Count In None`。
 - `pingpong_topdown_0.1`：Canvas2D 首版，实现合法单拍状态链、左右连续切换、投影高度、独立轨迹线、击球扩散曲线、旋转高光、落点提示、按力量和落点变化的弹起速度，以及基于 Tone.js 的击球和球台弹起音效。当前默认落台音色为 `07 Round Board`，默认击球音色为 `01 Hard Face A`。

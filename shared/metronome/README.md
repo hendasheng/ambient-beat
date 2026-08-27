@@ -49,6 +49,43 @@
 | `data-locale` | 英文 | 设为 `zh-CN` 时使用中文控制文案 |
 | `data-aria-label` | `Beat controls` | 面板可访问性名称 |
 
+## 可选状态输出
+
+项目需要让视觉、物理或项目音色读取节拍状态时，在创建引擎时显式开启 `outputState`。未开启时 `getOutput()` 返回 `null`，也不会调用 `onState`。
+
+```js
+const metronome = window.AmbientMetronome.createMetronome({
+  bpm: 120,
+  beatsPerBar: 4,
+  beatUnit: 4,
+  outputState: true,
+  onState: (output) => {
+    // output.event: change / beat / offbeat
+  },
+});
+
+function draw(now) {
+  metronome.update(now);
+  const output = metronome.getOutput(now);
+  // 使用 output.beatProgress 驱动逐帧视觉。
+  requestAnimationFrame(draw);
+}
+```
+
+输出是只读快照，包含 `running`、`suspended`、`bpm`、`intervalMs`、`beatsPerBar`、`beatUnit`、`subdivision`、`offbeatEnabled`、`countingIn`、Count In 计数、`beatIndex`、`beatNumber`、`bar`、`accent`、`beatProgress`、`pulse` 以及拍点时间锚点。
+
+- `onBeat(state, accent)`：拍点回调，兼容已有项目。
+- `onState(output)`：仅在开启状态输出后，对 change / beat / offbeat 事件推送快照。
+- `getOutput(now)`：仅在开启状态输出后返回逐帧快照。
+- `suspend(now)` / `resume(now)`：保留拍内相位的暂停与继续；原有 `pause()` 仍会结束 Count In。
+- `beatClickEnabled: false`：关闭共享正拍点击声，适合使用项目自有正拍音色；Offbeat 仍由共享引擎调度。
+
+共享引擎是节拍状态的唯一来源。项目可以选择不开启状态输出，但不得为相同的 BPM、拍号、Count In、Offbeat 和 transport 再维护第二套状态。
+
+当前接入示例：[`projects/pingpong_topdown/pingpong_topdown_0.4/sketch.js`](../../projects/pingpong_topdown/pingpong_topdown_0.4/sketch.js) 开启状态输出，以 `getOutput(now)` 驱动整拍击球、拍内运动和 Count In 发球准备；Tone.js 只生成项目特有的击球与落台音色，不再维护 transport。该项目明确设置 `offbeatEnabled: false` 且不显示 Offbeat 控件，因为半拍已经由落台声表达。这属于项目对共享能力的显式取舍，不代表项目遗漏或自行实现了另一套 Offbeat 时钟。
+
 项目脚本继续通过稳定 ID 获取控件，例如 `bpmInput`、`meterSelect`、`playPauseButton` 和 `rhythmResetButton`。项目 CSS 只能在 `:root` 设置 `--metronome-*` 主题、位置与容器避让变量，不得定义 `.rhythm-panel` 或其内部结构选择器，也不得为面板另写移动端断点。
+
+BPM 输入采用提交后生效：键入期间只编辑输入框草稿，不在 `input` 事件中调用 `setBpm()`；用户按 Enter 或点击其他位置触发 `change` 后，才校验并写入共享引擎。项目不得把每个输入字符当作新的 BPM，否则输入 `120` 时中间的 `1` / `12` 会被错误地限制成最低 BPM 并扰乱当前节拍。
 
 离线分发的共享文件同步规则见仓库根目录 [`MINITOOL.md`](../../MINITOOL.md)。

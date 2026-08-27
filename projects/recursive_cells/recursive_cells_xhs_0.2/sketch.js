@@ -13,8 +13,11 @@ const speedInput = document.getElementById("speedInput");
 const speedValue = document.getElementById("speedValue");
 const resetButton = document.getElementById("resetButton");
 const cameraToggleButton = document.getElementById("cameraToggleButton");
-const cameraSelect = document.getElementById("cameraSelect");
+const cameraSwitchButton = document.getElementById("cameraSwitchButton");
 const cameraStatus = document.getElementById("cameraStatus");
+const saveImageButton = document.getElementById("saveImageButton");
+const postNoteButton = document.getElementById("postNoteButton");
+const toast = document.getElementById("toast");
 const cellCount = document.getElementById("cellCount");
 const fpsReadout = document.getElementById("fpsReadout");
 const bpmInput = document.getElementById("bpmInput");
@@ -49,7 +52,9 @@ let splitTransition = null;
 let countInPreviewActive = false;
 let cameraStream = null;
 let cameraEnabled = false;
+let cameraFacingMode = "user";
 let videoCellKey = null;
+let toastTimer = 0;
 
 const cameraVideo = document.createElement("video");
 cameraVideo.autoplay = true;
@@ -239,38 +244,12 @@ function setCameraStatus(value) {
 
 function updateCameraControls() {
   if (cameraToggleButton) {
-    cameraToggleButton.textContent = cameraEnabled ? "Camera Off" : "Camera On";
+    cameraToggleButton.textContent = cameraEnabled ? "关闭摄像头" : "开启摄像头";
     cameraToggleButton.classList.toggle("camera-active", cameraEnabled);
   }
-  if (cameraSelect) {
-    cameraSelect.disabled = !navigator.mediaDevices?.getUserMedia;
-  }
-}
-
-async function refreshCameraDevices(selectedDeviceId = "") {
-  if (!cameraSelect || !navigator.mediaDevices?.enumerateDevices) {
-    return;
-  }
-
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  const videoInputs = devices.filter((device) => device.kind === "videoinput");
-  const currentValue = selectedDeviceId || cameraSelect.value;
-  cameraSelect.replaceChildren();
-
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Default camera";
-  cameraSelect.appendChild(defaultOption);
-
-  videoInputs.forEach((device, index) => {
-    const option = document.createElement("option");
-    option.value = device.deviceId;
-    option.textContent = device.label || `Camera ${index + 1}`;
-    cameraSelect.appendChild(option);
-  });
-
-  if (currentValue && videoInputs.some((device) => device.deviceId === currentValue)) {
-    cameraSelect.value = currentValue;
+  if (cameraSwitchButton) {
+    cameraSwitchButton.textContent = cameraFacingMode === "user" ? "切到后置" : "切到前置";
+    cameraSwitchButton.disabled = !navigator.mediaDevices?.getUserMedia;
   }
 }
 
@@ -282,13 +261,13 @@ function stopCamera() {
   cameraEnabled = false;
   cameraVideo.srcObject = null;
   videoCellKey = null;
-  setCameraStatus("Camera off");
+  setCameraStatus("摄像头已关闭");
   updateCameraControls();
 }
 
-async function startCamera(deviceId = "") {
+async function startCamera(facingMode = cameraFacingMode) {
   if (!navigator.mediaDevices?.getUserMedia) {
-    setCameraStatus("Camera unsupported");
+    setCameraStatus("当前环境不支持摄像头");
     return;
   }
 
@@ -296,25 +275,24 @@ async function startCamera(deviceId = "") {
     cameraStream.getTracks().forEach((track) => track.stop());
   }
 
-  setCameraStatus("Camera starting");
+  setCameraStatus("正在启动摄像头");
 
   try {
-    const constraints = {
-      video: deviceId ? { deviceId: { exact: deviceId } } : true,
-      audio: false,
-    };
+    const constraints = { video: { facingMode: { ideal: facingMode } }, audio: false };
     cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
     cameraVideo.srcObject = cameraStream;
     await cameraVideo.play();
     cameraEnabled = true;
+    cameraFacingMode = facingMode;
 
     const track = cameraStream.getVideoTracks()[0];
     const trackSettings = track?.getSettings?.() || {};
-    await refreshCameraDevices(trackSettings.deviceId || deviceId);
-    setCameraStatus(track?.label ? `Source ${track.label}` : "Camera live");
+    const actualFacing = trackSettings.facingMode;
+    if (actualFacing === "user" || actualFacing === "environment") cameraFacingMode = actualFacing;
+    setCameraStatus(cameraFacingMode === "environment" ? "后置摄像头已开启" : "前置摄像头已开启");
   } catch (error) {
     stopCamera();
-    setCameraStatus(error?.name === "NotAllowedError" ? "Camera blocked" : "Camera failed");
+    setCameraStatus(error?.name === "NotAllowedError" ? "摄像头权限未开启" : "摄像头启动失败");
   }
 
   updateCameraControls();
@@ -1075,35 +1053,55 @@ function handleRhythmPointerMove(event) {
   }
 }
 
-function isTypingTarget(element) {
-  return element?.matches?.("input, select, textarea, button, [contenteditable='true']");
+function showToast(message) {
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("visible");
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => toast.classList.remove("visible"), 2200);
 }
 
-async function toggleFullscreen() {
-  if (!document.fullscreenEnabled) {
-    return;
-  }
-
-  if (document.fullscreenElement) {
-    await document.exitFullscreen();
-    return;
-  }
-
-  await document.documentElement.requestFullscreen();
+function captureFrame() {
+  return canvas.toDataURL("image/png");
 }
 
-function handleKeydown(event) {
-  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+function miniToolBridge() {
+  return window.xhs?.miniTool || null;
+}
+
+async function saveCurrentFrame() {
+  const bridge = miniToolBridge();
+  if (!bridge?.writeTempFile || !bridge?.saveImageToPhotosAlbum) {
+    showToast("请在小红书小工具中保存");
     return;
   }
 
-  if (isTypingTarget(event.target)) {
+  try {
+    const result = await bridge.writeTempFile({ data: captureFrame() });
+    await bridge.saveImageToPhotosAlbum({ filePath: result.filePath });
+    showToast("画面已保存到相册");
+  } catch (error) {
+    showToast("保存失败，请检查相册权限");
+  }
+}
+
+async function postCurrentFrame() {
+  const bridge = miniToolBridge();
+  if (!bridge?.postNote) {
+    showToast("请在小红书小工具中发布");
     return;
   }
 
-  if (event.key.toLowerCase() === "f") {
-    event.preventDefault();
-    toggleFullscreen().catch(() => {});
+  try {
+    await bridge.postNote({
+      title: "氛围节拍-递归细胞",
+      content: "用节拍生成一帧不断生长的信号细胞。",
+      pageType: "photo_publish",
+      mediaInfo: { image_resources: [{ url: captureFrame() }] },
+      tags: "氛围节拍,递归细胞,视觉节拍,生成艺术",
+    });
+  } catch (error) {
+    showToast("发布页打开失败，请稍后重试");
   }
 }
 
@@ -1129,25 +1127,31 @@ cameraToggleButton?.addEventListener("click", () => {
     return;
   }
 
-  startCamera(cameraSelect?.value || "").then(() => {
+  startCamera(cameraFacingMode).then(() => {
     showRhythmPanel(rhythm.running ? 2200 : 0);
   });
 });
 
-cameraSelect?.addEventListener("change", () => {
-  if (!cameraEnabled) {
-    return;
+cameraSwitchButton?.addEventListener("click", () => {
+  const nextFacingMode = cameraFacingMode === "user" ? "environment" : "user";
+  cameraFacingMode = nextFacingMode;
+  updateCameraControls();
+  if (cameraEnabled) {
+    startCamera(nextFacingMode).then(() => {
+      showRhythmPanel(rhythm.running ? 2200 : 0);
+    });
+  } else {
+    setCameraStatus(nextFacingMode === "environment" ? "将使用后置摄像头" : "将使用前置摄像头");
   }
-
-  startCamera(cameraSelect.value).then(() => {
-    showRhythmPanel(rhythm.running ? 2200 : 0);
-  });
 });
 
-navigator.mediaDevices?.addEventListener?.("devicechange", () => {
-  refreshCameraDevices().catch(() => {
-    setCameraStatus("Camera list failed");
-  });
+saveImageButton?.addEventListener("click", saveCurrentFrame);
+postNoteButton?.addEventListener("click", postCurrentFrame);
+
+cameraVideo.addEventListener("loadedmetadata", () => {
+  if (cameraEnabled) {
+    showRhythmPanel(rhythm.running ? 2200 : 0);
+  }
 });
 
 playPauseButton.addEventListener("click", async () => {
@@ -1235,7 +1239,6 @@ clickVolumeInput.addEventListener("input", () => {
 });
 
 window.addEventListener("resize", resize);
-document.addEventListener("keydown", handleKeydown);
 document.addEventListener("pointerdown", handleRhythmPointerDown);
 document.addEventListener("pointermove", handleRhythmPointerMove);
 
@@ -1250,7 +1253,4 @@ updateRhythmReadout();
 setTransportText();
 syncRhythmPanelVisibility();
 updateCameraControls();
-refreshCameraDevices().catch(() => {
-  setCameraStatus("Camera list failed");
-});
 requestAnimationFrame(render);

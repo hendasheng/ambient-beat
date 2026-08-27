@@ -201,34 +201,10 @@
       return state.bpm;
     }
 
-    function setBeatsPerBar(value, now = performance.now()) {
+    function setBeatsPerBar(value) {
       state.beatsPerBar = clamp(Math.round(Number(value) || state.beatsPerBar), 1, 12);
+      state.beatIndex = Math.min(state.beatIndex, state.beatsPerBar - 1);
       state.countInTotalBeats = state.countInBars * state.beatsPerBar;
-
-      if (!state.running) {
-        state.beatIndex = 0;
-        state.countingIn = false;
-        state.countInBeatsRemaining = 0;
-        state.lastBeatAt = now;
-        emitChange();
-        return state.beatsPerBar;
-      }
-
-      state.lastBeatAt = now;
-      state.nextBeatAt = now + intervalMs();
-      state.nextOffbeatAt = now + intervalMs() * 0.5;
-
-      if (state.countingIn) {
-        state.countInBeatsRemaining = state.countInTotalBeats;
-        state.bar = 1;
-        state.startAt = now + state.countInTotalBeats * intervalMs();
-        advanceCountInBeat(now);
-      } else {
-        state.beatIndex = 0;
-        scheduleClick(true);
-        emitBeat(true);
-      }
-
       emitChange();
       return state.beatsPerBar;
     }

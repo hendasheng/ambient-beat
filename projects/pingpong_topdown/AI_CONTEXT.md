@@ -13,7 +13,8 @@
 - 每球总时长为一个 beat：整拍击球、半拍落台、下一整拍回击。
 - Count In 必须表现为台外发球准备并衔接第一拍，不退化为空等待。
 - 球高度通过投影表达，球本体不使用拖尾；轨迹与击球扩散曲线保持独立。
-- Tone.Transport、画面回合、beat strip、readout 和播放按钮信号灯必须保持同一节拍语义。
+- 共享 `metronome.js` 的 `outputState` 是唯一节拍状态源；画面回合、beat strip、readout 和播放按钮信号灯读取同一输出。不要恢复 Tone.Transport 或项目级 BPM / 拍号 / Count In / transport 状态。
+- Tone.js 只负责击球与落台的项目音色。共享模块仍提供 Offbeat 能力，但 PingPong 明确配置 `offbeatEnabled: false` 且不显示 Offbeat 控件，因为半拍已经由球落台声表达；共享正拍点击声也通过 `beatClickEnabled: false` 关闭。
 - 当前主版本复用共享节拍面板，项目 CSS 不重写其内部结构。
 - 移动端点击画面空白区域显示或隐藏面板，操作控件时不能误触发收起。
 
@@ -21,7 +22,7 @@
 
 - 不同 BPM、拍号和 Count In 下，击球与落台时点保持稳定。
 - 竖屏球台尺寸、Canvas DPR、mini beat 与底部面板在常见移动端高度下不重叠。
-- Play/Pause、Reset、音量和绿色信号灯在 Tone.Transport 暂停、恢复及页面隐藏后仍同步。
+- Play/Pause、Reset、音量和绿色信号灯在共享引擎 suspend / resume 及页面隐藏后仍同步。
 - 第一拍重音与普通拍的音色差异清楚但不过度突兀。
 
 ## 下一步

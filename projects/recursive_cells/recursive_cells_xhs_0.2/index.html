@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>氛围节拍-递归细胞</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./metronome-panel.css" />
+</head>
+<body>
+  <main class="app" aria-label="氛围节拍-递归细胞">
+    <canvas id="stage"></canvas>
+
+    <section class="hud" aria-label="递归细胞参数">
+      <div class="identity">
+        <span class="tool-name">氛围节拍-递归细胞</span>
+        <span class="version">v0.2</span>
+      </div>
+
+      <div class="readout">
+        <span id="cellCount">0 cells</span>
+        <span id="fpsReadout">-- fps</span>
+      </div>
+
+      <div class="hud-section">
+        <span class="section-label">结构</span>
+        <label>
+          <span>点数</span>
+          <input id="pointInput" type="range" min="60" max="560" value="240" step="10" />
+          <output id="pointValue">240</output>
+        </label>
+
+        <label>
+          <span>最小尺寸</span>
+          <input id="minSizeInput" type="range" min="10" max="90" value="34" />
+          <output id="minSizeValue">34</output>
+        </label>
+
+        <label>
+          <span>不规则度</span>
+          <input id="irregularityInput" type="range" min="0" max="100" value="62" />
+          <output id="irregularityValue">0.62</output>
+        </label>
+
+        <button id="resetButton" class="secondary-button" type="button">重置种子</button>
+      </div>
+
+      <div class="hud-section">
+        <span class="section-label">预览</span>
+        <label>
+          <span>运动</span>
+          <input id="motionInput" type="range" min="0" max="100" value="45" />
+          <output id="motionValue">0.45</output>
+        </label>
+
+        <label>
+          <span>速度</span>
+          <input id="speedInput" type="range" min="0" max="120" value="20" />
+          <output id="speedValue">0.20</output>
+        </label>
+      </div>
+
+      <div class="hud-section">
+        <span class="section-label">摄像头与输出</span>
+        <div class="camera-controls">
+          <button id="cameraToggleButton" type="button">开启摄像头</button>
+          <button id="cameraSwitchButton" class="secondary-button" type="button">切到后置</button>
+        </div>
+        <span id="cameraStatus" class="camera-status">摄像头已关闭</span>
+        <div class="output-actions">
+          <button id="saveImageButton" class="secondary-button" type="button">保存画面</button>
+          <button id="postNoteButton" class="secondary-button" type="button">发布笔记</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <aside class="rhythm-panel" data-metronome-panel data-bpm="92" data-volume="45" data-meters="odd" data-rhythm-label="运动" data-offbeat="true" data-locale="zh-CN" data-aria-label="节拍控制" aria-label="节拍控制"></aside>
+  </main>
+
+  <script src="./metronome-panel.js"></script>
+  <script src="./metronome.js"></script>
+  <script src="./sketch.js"></script>
+</body>
+</html>

@@ -72,23 +72,13 @@ const world = {
   direction: 1,
   nextStart: { x: -0.43, y: 0.08 },
   shotIndex: 0,
-  beatIndex: 0,
-  bpm: 68,
-  meter: { numerator: 4, denominator: 4 },
-  subdivision: "auto",
-  countInBars: 0,
-  countInEnd: 0,
-  clickVolume: 0.78,
-  isPlaying: false,
-  isPaused: false,
-  useToneClock: false,
-  clockOrigin: 0,
+  shotBeatIndex: 0,
   current: null,
   servePrep: null,
   elapsed: 0,
   lastTime: 0,
   wasHidden: false,
-  transportPausedForHidden: false,
+  resumeAfterHidden: false,
   trails: [],
   pings: [],
   hitCurves: []
@@ -108,8 +98,26 @@ const audio = {
   bounceBody: null,
   bounceHigh: null,
   bounceLow: null,
-  bounceBand: null
+  bounceBand: null,
+  lastHitStart: -Infinity,
+  lastBounceStart: -Infinity
 };
+
+const metronome = window.AmbientMetronome.createMetronome({
+  bpm: Number(bpmInput?.value) || 68,
+  beatsPerBar: parseMeter(meterSelect?.value || "4/4").numerator,
+  subdivision: subdivisionSelect?.value || "auto",
+  countInBars: Number(countInSelect?.value) || 0,
+  // PingPong uses its own table-bounce sound at half-beats, so the shared
+  // metronome's optional Offbeat click is deliberately disabled.
+  offbeatEnabled: false,
+  clickVolume: Number(clickVolumeInput?.value || 78) / 100,
+  beatClickEnabled: false,
+  outputState: true,
+  onBeat: handleMetronomeBeat,
+  onChange: syncMetronomeUI,
+});
+const rhythm = metronome.state;
 
 const bouncePresets = [
   { name: "Deep Wood A", high: [790, 1210], low: [1620, 2240], band: [780, 1260], clickHigh: [1380, 2280], toneFreq: [72, 118], bodyDur: [0.038, 0.066], clickDur: [0.0042, 0.008], toneVol: [-14, -5], bodyVol: [-12, -4], clickVol: [-27, -16], room: 0.08 },
@@ -158,11 +166,11 @@ function parseMeter(value) {
 }
 
 function getBeatMs() {
-  return 60000 / world.bpm;
+  return metronome.intervalMs();
 }
 
 function getSubdivisionMode() {
-  return subdivisionModes[world.subdivision] || subdivisionModes.auto;
+  return subdivisionModes[rhythm.subdivision] || subdivisionModes.auto;
 }
 
 function applyClickVolume() {
@@ -170,44 +178,28 @@ function applyClickVolume() {
     return;
   }
 
-  const gain = Math.pow(clamp(world.clickVolume, 0, 1), 1.6) * 2.8;
+  const gain = Math.pow(clamp(rhythm.clickVolume, 0, 1), 1.6) * 2.8;
   audio.master.gain.rampTo(gain, 0.02);
 }
 
-function configureTransport() {
-  if (typeof Tone === "undefined") {
-    return;
-  }
-
-  Tone.Transport.bpm.value = world.bpm;
-  Tone.Transport.timeSignature = [world.meter.numerator, world.meter.denominator];
-}
-
-function clockMsToToneTime(clockMs) {
-  if (!world.useToneClock || typeof Tone === "undefined") {
-    return undefined;
-  }
-
-  const deltaSeconds = clockMs / 1000 - Tone.Transport.seconds;
-  return Math.max(Tone.now(), Tone.now() + deltaSeconds);
-}
-
 function getClockMs(timestamp) {
-  if (world.useToneClock && typeof Tone !== "undefined") {
-    return Tone.Transport.seconds * 1000;
-  }
+  const output = metronome.getOutput(timestamp);
+  if (!output || output.countingIn) return 0;
+  const absoluteBeat = (output.bar - 1) * output.beatsPerBar + output.beatIndex + output.beatProgress;
+  return absoluteBeat * output.intervalMs;
+}
 
-  if (!world.clockOrigin) {
-    world.clockOrigin = timestamp;
-  }
-  return timestamp - world.clockOrigin;
+function getCountInElapsed(output) {
+  if (!output?.countingIn) return 0;
+  const completedBeat = Math.max(0, output.countInTotalBeats - output.countInBeatsRemaining - 1);
+  return (completedBeat + output.beatProgress) * output.intervalMs;
 }
 
 function resetRallyClock(clockMs = 0) {
   world.direction = 1;
   world.nextStart = { x: -0.43, y: 0.08 };
   world.shotIndex = 0;
-  world.beatIndex = 0;
+  world.shotBeatIndex = 0;
   world.current = null;
   world.servePrep = null;
   world.elapsed = 0;
@@ -215,7 +207,6 @@ function resetRallyClock(clockMs = 0) {
   world.trails = [];
   world.pings = [];
   world.hitCurves = [];
-  world.countInEnd = world.countInBars * world.meter.numerator * getBeatMs();
 }
 
 function createServePrep() {
@@ -240,19 +231,6 @@ function createServePrep() {
   };
 }
 
-function scheduleCountIn() {
-  if (!audio.ready || !world.useToneClock || world.countInEnd <= 0) {
-    return;
-  }
-
-  const beatMs = getBeatMs();
-  const count = Math.round(world.countInEnd / beatMs);
-  for (let i = 0; i < count; i += 1) {
-    const beatNumber = (i % world.meter.numerator) + 1;
-    playHitSound({ power: beatNumber === 1 ? 0.66 : 0.48, accent: beatNumber === 1 }, clockMsToToneTime(i * beatMs));
-  }
-}
-
 function resyncRallyToClock(clockMs) {
   const beatMs = getBeatMs();
   const beatIndex = Math.max(0, Math.floor(clockMs / beatMs));
@@ -263,7 +241,7 @@ function resyncRallyToClock(clockMs) {
     ? { x: -0.43, y: 0.08 }
     : { x: 0.43, y: -0.08 };
   world.shotIndex = beatIndex % shotTypes.length;
-  world.beatIndex = beatIndex;
+  world.shotBeatIndex = beatIndex;
   world.current = null;
   world.elapsed = 0;
   world.lastTime = clockMs;
@@ -279,16 +257,16 @@ function resyncRallyToClock(clockMs) {
 function handleVisibilityChange() {
   if (document.hidden) {
     world.wasHidden = true;
-    if (world.isPlaying && typeof Tone !== "undefined" && Tone.Transport.state === "started") {
-      Tone.Transport.pause();
-      world.transportPausedForHidden = true;
+    if (rhythm.running) {
+      metronome.suspend(performance.now());
+      world.resumeAfterHidden = true;
     }
     return;
   }
 
-  if (world.transportPausedForHidden && typeof Tone !== "undefined" && Tone.context.state === "running") {
-    Tone.Transport.start("+0.02");
-    world.transportPausedForHidden = false;
+  if (world.resumeAfterHidden) {
+    metronome.resume(performance.now());
+    world.resumeAfterHidden = false;
   }
   world.wasHidden = true;
 }
@@ -335,13 +313,13 @@ function renderBeatDots(container, activeBeat, dotClass) {
     return;
   }
 
-  container.style.setProperty("--beats", world.meter.numerator);
-  if (container.dataset.beats !== String(world.meter.numerator) || container.dataset.dotClass !== dotClass) {
+  container.style.setProperty("--beats", rhythm.beatsPerBar);
+  if (container.dataset.beats !== String(rhythm.beatsPerBar) || container.dataset.dotClass !== dotClass) {
     container.replaceChildren();
-    for (let i = 1; i <= world.meter.numerator; i += 1) {
+    for (let i = 1; i <= rhythm.beatsPerBar; i += 1) {
       container.appendChild(document.createElement("span"));
     }
-    container.dataset.beats = String(world.meter.numerator);
+    container.dataset.beats = String(rhythm.beatsPerBar);
     container.dataset.dotClass = dotClass;
   }
 
@@ -372,13 +350,13 @@ function setHudBeat(value) {
 
 function setTransportText() {
   if (playPauseButton) {
-    window.AmbientMetronomePanel.setPlaying(playPauseButton, world.isPlaying);
+    window.AmbientMetronomePanel.setPlaying(playPauseButton, rhythm.running);
   }
 }
 
 function showRhythmPanel(duration = 2400) {
   rhythmPanelDismissed = false;
-  if (!world.isPlaying) {
+  if (!rhythm.running) {
     syncRhythmPanelVisibility();
     return;
   }
@@ -389,7 +367,7 @@ function showRhythmPanel(duration = 2400) {
     return;
   }
   rhythmPanelHideTimer = window.setTimeout(() => {
-    if (!world.isPlaying) {
+    if (!rhythm.running) {
       syncRhythmPanelVisibility();
       return;
     }
@@ -403,8 +381,8 @@ function showRhythmPanel(duration = 2400) {
 
 function syncRhythmPanelVisibility() {
   window.clearTimeout(rhythmPanelHideTimer);
-  document.body.classList.toggle("rhythm-pinned", !world.isPlaying && !rhythmPanelDismissed);
-  if (!world.isPlaying) {
+  document.body.classList.toggle("rhythm-pinned", !rhythm.running && !rhythmPanelDismissed);
+  if (!rhythm.running) {
     document.body.classList.remove("rhythm-visible");
   }
 }
@@ -444,7 +422,7 @@ function handleRhythmPointerMove(event) {
 
   const proximity = window.innerWidth <= 680 ? 230 : 170;
   if (window.innerHeight - event.clientY <= proximity) {
-    showRhythmPanel(world.isPlaying ? 2200 : 0);
+    showRhythmPanel(rhythm.running ? 2200 : 0);
   }
 }
 
@@ -483,40 +461,47 @@ function handleGlobalKeydown(event) {
 }
 
 function updateRhythmLabels(activeBeat = 1) {
-  setText(tempoLabel, `${world.bpm} BPM`);
+  setText(tempoLabel, `${rhythm.bpm} BPM`);
   if (meterLabel) {
     const tableBeat = activeBeat + getSubdivisionMode().fraction;
-    const countInText = world.countInBars > 0 ? ` · count ${world.countInBars} bar` : "";
-    setText(meterLabel, `${world.meter.numerator}/${world.meter.denominator} · ${getSubdivisionMode().label} · hit ${activeBeat}, table ${tableBeat.toFixed(2).replace(/0$/, "")}${countInText}`);
+    const countInText = rhythm.countInBars > 0 ? ` · count ${rhythm.countInBars} bar` : "";
+    setText(meterLabel, `${rhythm.beatsPerBar}/${rhythm.beatUnit} · ${getSubdivisionMode().label} · hit ${activeBeat}, table ${tableBeat.toFixed(2).replace(/0$/, "")}${countInText}`);
   }
-  setText(miniBeatReadout, `${world.bpm} BPM · ${world.meter.numerator}/${world.meter.denominator}`);
+  setText(miniBeatReadout, `${rhythm.bpm} BPM · ${rhythm.beatsPerBar}/${rhythm.beatUnit}`);
   setHudBeat(activeBeat);
   renderBeatStrip(activeBeat);
 }
 
 function applyRhythmInputs() {
-  if (bpmInput) {
-    world.bpm = clamp(Math.round(Number(bpmInput.value) || 68), 40, 240);
-    bpmInput.value = world.bpm;
-  }
-  if (meterSelect) {
-    world.meter = parseMeter(meterSelect.value);
-  }
-  if (subdivisionSelect) {
-    world.subdivision = subdivisionModes[subdivisionSelect.value] ? subdivisionSelect.value : "auto";
-  }
-  if (countInSelect) {
-    world.countInBars = clamp(Math.round(Number(countInSelect.value) || 0), 0, 2);
-  }
-  if (clickVolumeInput) {
-    world.clickVolume = clamp(Number(clickVolumeInput.value) / 100, 0, 1);
-  }
-  setText(clickVolumeLabel, `${Math.round(world.clickVolume * 100)}%`);
-  configureTransport();
-  applyClickVolume();
+  const meter = parseMeter(meterSelect?.value || "4/4");
+  metronome.setBpm(bpmInput?.value || rhythm.bpm);
+  metronome.setMeter(meter.numerator, meter.denominator);
+  metronome.setSubdivision(subdivisionSelect?.value || "auto");
+  metronome.setCountInBars(countInSelect?.value || 0);
+  metronome.setOffbeatEnabled(false);
+  metronome.setClickVolume(Number(clickVolumeInput?.value || 0) / 100);
+  syncMetronomeUI();
+}
 
-  const activeBeat = clamp(world.current?.beatNumber || ((world.beatIndex % world.meter.numerator) + 1), 1, world.meter.numerator);
+function syncMetronomeUI() {
+  // Do not overwrite an in-progress edit (for example, the first digit of
+  // "120"). Normalize the field only after it loses focus or commits.
+  if (bpmInput && document.activeElement !== bpmInput) bpmInput.value = rhythm.bpm;
+  setText(clickVolumeLabel, `${Math.round(rhythm.clickVolume * 100)}%`);
+  applyClickVolume();
+  const fallbackBeat = (world.shotBeatIndex % rhythm.beatsPerBar) + 1;
+  const activeBeat = clamp(world.current?.beatNumber || rhythm.beatIndex + 1 || fallbackBeat, 1, rhythm.beatsPerBar);
   updateRhythmLabels(activeBeat);
+  updateTransportButtons();
+  syncRhythmPanelVisibility();
+}
+
+function handleMetronomeBeat(state, accent) {
+  window.AmbientMetronomePanel.pulse(playPauseButton);
+  updateRhythmLabels(state.beatIndex + 1);
+  if (state.countingIn) {
+    playHitSound({ power: accent ? 0.66 : 0.48, accent });
+  }
 }
 
 function initAudio() {
@@ -623,51 +608,32 @@ function initAudio() {
 }
 
 async function unlockAudio() {
-  if (typeof Tone === "undefined") {
-    return;
-  }
-
+  const metronomeContext = metronome.ensureAudio();
+  if (metronomeContext.state !== "running") await metronomeContext.resume();
+  if (typeof Tone === "undefined") return;
   initAudio();
   if (Tone.context.state !== "running") {
     await Tone.start();
   }
-  configureTransport();
-  world.useToneClock = true;
 }
 
 async function startPlayback() {
   await unlockAudio();
-  if (typeof Tone === "undefined") {
-    return;
-  }
-
-  Tone.Transport.stop();
-  Tone.Transport.position = 0;
   resetRallyClock(0);
-  if (world.countInEnd > 0) {
+  if (rhythm.countInBars > 0) {
     world.servePrep = createServePrep();
   }
-  world.isPlaying = true;
-  world.isPaused = false;
   world.wasHidden = false;
-  Tone.Transport.start("+0.02");
-  scheduleCountIn();
-  updateTransportButtons();
-  syncRhythmPanelVisibility();
+  metronome.reset(performance.now());
+  metronome.start(performance.now());
   showRhythmPanel(1800);
 }
 
 async function togglePlayback() {
-  if (!world.isPlaying) {
-    if (world.isPaused) {
+  if (!rhythm.running) {
+    if (rhythm.suspended) {
       await unlockAudio();
-      if (typeof Tone !== "undefined") {
-        Tone.Transport.start("+0.02");
-      }
-      world.isPlaying = true;
-      world.isPaused = false;
-      updateTransportButtons();
-      syncRhythmPanelVisibility();
+      metronome.resume(performance.now());
       showRhythmPanel(1800);
       return;
     }
@@ -675,22 +641,12 @@ async function togglePlayback() {
     return;
   }
 
-  if (typeof Tone !== "undefined" && Tone.Transport.state === "started") {
-    Tone.Transport.pause();
-  }
-  world.isPlaying = false;
-  world.isPaused = true;
-  updateTransportButtons();
-  syncRhythmPanelVisibility();
+  metronome.suspend(performance.now());
 }
 
 function resetPlayback() {
-  if (typeof Tone !== "undefined") {
-    Tone.Transport.stop();
-    Tone.Transport.position = 0;
-  }
-  world.isPlaying = false;
-  world.isPaused = false;
+  metronome.pause();
+  metronome.reset(performance.now());
   resetRallyClock(0);
   world.servePrep = null;
   updateRhythmLabels(1);
@@ -702,12 +658,23 @@ function updateTransportButtons() {
   setTransportText();
 }
 
+function getSafeToneStart(channel, requestedTime) {
+  const clockTime = Tone.now();
+  const requested = Number.isFinite(requestedTime) ? requestedTime : clockTime;
+  const key = channel === "bounce" ? "lastBounceStart" : "lastHitStart";
+  // Catch-up rendering can emit several sounds inside one animation frame.
+  // Tone sources require every start time to be strictly increasing.
+  const safeTime = Math.max(clockTime, requested, audio[key] + 0.003);
+  audio[key] = safeTime;
+  return safeTime;
+}
+
 function playHitSound(shot, time) {
   if (!audio.ready || typeof Tone === "undefined" || Tone.context.state !== "running") {
     return;
   }
 
-  const now = time ?? Tone.now();
+  const now = getSafeToneStart("hit", time);
   const power = clamp(shot.power, 0, 1);
   const preset = hitPresets[selectedHitPreset];
   const accent = shot.accent ? 1 : 0;
@@ -735,7 +702,7 @@ function playBounceSound(shot, time) {
     return;
   }
 
-  const now = time ?? Tone.now();
+  const now = getSafeToneStart("bounce", time);
   const power = clamp(shot.power, 0, 1);
   const preset = bouncePresets[selectedBouncePreset];
   const accent = shot.accent ? 1 : 0;
@@ -1163,7 +1130,7 @@ function startNextShot(now, visualAge = 0, playAudio = true) {
     });
   }
 
-  const beatNumber = (world.beatIndex % world.meter.numerator) + 1;
+  const beatNumber = (world.shotBeatIndex % rhythm.beatsPerBar) + 1;
   world.current = createShot();
   world.current.beatNumber = beatNumber;
   world.current.accent = beatNumber === 1;
@@ -1176,18 +1143,13 @@ function startNextShot(now, visualAge = 0, playAudio = true) {
     world.hitCurves[world.hitCurves.length - 1].age = visualAge;
   }
   if (playAudio) {
-    playHitSound(world.current, clockMsToToneTime(now));
-  }
-  if (playAudio && audio.ready && world.useToneClock) {
-    playBounceSound(world.current, clockMsToToneTime(now + world.current.bounceTime));
-    world.current.bounceScheduled = true;
+    playHitSound(world.current);
   }
   setHudPhase("strike");
   setHudShot(world.current.shotType);
   setHudPower(world.current.power.toFixed(2));
   updateRhythmLabels(beatNumber);
-  window.AmbientMetronomePanel.pulse(playPauseButton);
-  world.beatIndex += 1;
+  world.shotBeatIndex += 1;
 }
 
 function triggerBounce(shot, visualAge = 0) {
@@ -1275,7 +1237,8 @@ function sampleShot(shot, phase, elapsed) {
 }
 
 function sampleServePrep(prep, elapsed) {
-  const total = Math.max(getBeatMs(), world.countInEnd || getBeatMs());
+  const countInDuration = rhythm.countInTotalBeats * getBeatMs();
+  const total = Math.max(getBeatMs(), countInDuration || getBeatMs());
   const t = clamp(elapsed / total, 0, 1);
   const height = 0.08 + Math.sin(t * Math.PI) * 1.72;
   const contactEase = Math.pow(t, 2.65);
@@ -1604,9 +1567,11 @@ function drawServeBall(sample) {
 }
 
 function draw(timestamp) {
+  metronome.update(timestamp);
+  const rhythmOutput = metronome.getOutput(timestamp);
   const clockMs = getClockMs(timestamp);
 
-  if (!world.isPlaying) {
+  if (!rhythm.running) {
     drawTable();
     if (world.current) {
       const shot = world.current;
@@ -1625,11 +1590,10 @@ function draw(timestamp) {
     return;
   }
 
-  if (!world.current && clockMs < world.countInEnd) {
-    const beatMs = getBeatMs();
-    const countBeat = Math.floor(clockMs / beatMs);
-    const activeBeat = (countBeat % world.meter.numerator) + 1;
-    world.lastTime = clockMs;
+  if (rhythmOutput?.countingIn) {
+    const countInElapsed = getCountInElapsed(rhythmOutput);
+    const activeBeat = rhythmOutput.beatNumber;
+    world.lastTime = 0;
     setHudPhase("count-in");
     setHudShot("ready");
     setHudPower("--");
@@ -1637,19 +1601,19 @@ function draw(timestamp) {
     updateRhythmLabels(activeBeat);
     drawTable();
     if (world.servePrep) {
-      drawServeBall(sampleServePrep(world.servePrep, clockMs));
+      drawServeBall(sampleServePrep(world.servePrep, countInElapsed));
     }
     requestAnimationFrame(draw);
     return;
   }
 
   if (!world.current) {
-    const shotStart = world.countInEnd > 0 ? world.countInEnd : clockMs;
+    const shotStart = 0;
     if (world.servePrep) {
       world.nextStart = { ...world.servePrep.contact };
       world.direction = world.servePrep.direction;
     }
-    startNextShot(shotStart, Math.max(0, clockMs - shotStart));
+    startNextShot(shotStart, Math.max(0, clockMs));
     world.servePrep = null;
     world.lastTime = clockMs;
   }
@@ -1731,32 +1695,43 @@ if (rhythmPanel) {
   rhythmPanel.addEventListener("input", () => showRhythmPanel(0));
 }
 if (bpmInput) {
-  bpmInput.addEventListener("change", applyRhythmInputs);
-  bpmInput.addEventListener("input", () => {
-    const value = Number(bpmInput.value);
-    if (Number.isFinite(value)) {
-      world.bpm = clamp(Math.round(value), 40, 240);
-      configureTransport();
-      updateRhythmLabels(world.current?.beatNumber || 1);
+  bpmInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") bpmInput.blur();
+  });
+  bpmInput.addEventListener("change", () => {
+    const now = performance.now();
+    bpmInput.value = metronome.setBpm(bpmInput.value);
+    if (rhythm.running) {
+      // Commit the new tempo as one operation. Restarting the shared bar avoids
+      // carrying a partially elapsed beat whose duration used the old BPM.
+      metronome.setMeter(rhythm.beatsPerBar, rhythm.beatUnit, now);
+      resetRallyClock(0);
     }
+    updateRhythmLabels(1);
   });
 }
 if (meterSelect) {
-  meterSelect.addEventListener("change", applyRhythmInputs);
+  meterSelect.addEventListener("change", () => {
+    const meter = parseMeter(meterSelect.value);
+    metronome.setMeter(meter.numerator, meter.denominator);
+    // Changing meter starts a fresh bar in the shared engine and a fresh
+    // rally here; never carry the previous meter's absolute clock forward.
+    resetRallyClock(0);
+  });
 }
 if (subdivisionSelect) {
-  subdivisionSelect.addEventListener("change", applyRhythmInputs);
+  subdivisionSelect.addEventListener("change", () => metronome.setSubdivision(subdivisionSelect.value));
 }
 if (countInSelect) {
-  countInSelect.addEventListener("change", applyRhythmInputs);
+  countInSelect.addEventListener("change", () => metronome.setCountInBars(countInSelect.value));
 }
 if (clickVolumeInput) {
-  clickVolumeInput.addEventListener("input", applyRhythmInputs);
+  clickVolumeInput.addEventListener("input", () => metronome.setClickVolume(Number(clickVolumeInput.value) / 100));
 }
 if (playPauseButton) {
   playPauseButton.addEventListener("click", togglePlayback);
 }
-if (resetButton) {
+if (rhythmResetButton) {
   rhythmResetButton.addEventListener("click", resetPlayback);
 }
 applyRhythmInputs();

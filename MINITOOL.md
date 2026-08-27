@@ -91,7 +91,8 @@ canvas.toDataURL()
 
 | 版本 | 源码目录 | 产物状态 |
 | --- | --- | --- |
-| 氛围节拍-递归细胞 | `projects/recursive_cells/recursive_cells_xhs_0.1/` | 历史 ZIP 已有；当前源码更新后待明确要求时重新打包 |
+| 氛围节拍-递归细胞 v0.2 | `projects/recursive_cells/recursive_cells_xhs_0.2/` | 基于 Web v0.3 的当前小工具源码；2026-08-27 已生成本地上传包（不纳入仓库） |
+| 氛围节拍-递归细胞 v0.1 | `projects/recursive_cells/recursive_cells_xhs_0.1/` | 2026-08-20 历史源码；历史 ZIP 已有 |
 | 氛围节拍-同步监视器 | `projects/beat_sync_monitor/beat_sync_monitor_xhs_0.1/` | 源码开发中，暂未打包 |
 
 ## 交付前检查

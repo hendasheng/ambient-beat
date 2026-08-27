@@ -866,16 +866,15 @@
     syncRhythmPanelVisibility();
   });
 
+  bpmInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") bpmInput.blur();
+  });
+
   bpmInput.addEventListener("change", () => {
     state.bpm = metronome.setBpm(bpmInput.value);
     bpmInput.value = state.bpm;
     updateReadout();
     showRhythmPanel(state.running ? 2200 : 0);
-  });
-
-  bpmInput.addEventListener("input", () => {
-    state.bpm = metronome.setBpm(bpmInput.value);
-    updateReadout();
   });
 
   meterSelect.addEventListener("change", () => {

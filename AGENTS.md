@@ -26,7 +26,7 @@ Ambient Beat 是一个基于 Web Audio 与实时视觉的开源节拍器实验�
 - 项目内部页面才做版本入口；新增项目时保留 `projects/<project>/index.html` 用于列出迭代版本。
 - 新增或调整项目版本后，如果当前主版本变化，要同步更新根首页项目卡片链接、README / README_EN 的当前主版本说明，以及必要的项目 README。
 - 节拍器控制功能应尽量使用统一模型：Tempo / Meter / Rhythm / Count In / Click Volume / Start / Reset，以及未播放常驻、播放后自动隐藏、靠近底部或点击显示的面板交互。不要为每个项目随意重写一套不兼容的节拍器控件；确有差异时先复用同一状态语义和控件命名。
-- 当前主版本的节拍面板必须通过 `shared/metronome/metronome-panel.js` 的 `data-metronome-panel` 占位元素生成，并引用 `shared/metronome/metronome-panel.css`；不要在项目页面复制面板 HTML。页面只通过 `data-*` 配置初始值和可选控件，并用 CSS 变量定义主题。节拍时序统一复用 `shared/metronome/metronome.js`；不使用共享时序引擎的旧项目也必须复用共享面板 UI。离线分发版本可内置这三份共享文件的副本，但应保持同源并在共享模块更新后同步。
+- 当前主版本的节拍面板必须通过 `shared/metronome/metronome-panel.js` 的 `data-metronome-panel` 占位元素生成，并引用 `shared/metronome/metronome-panel.css`；不要在项目页面复制面板 HTML。页面只通过 `data-*` 配置初始值和可选控件，并用 CSS 变量定义主题。节拍时序统一复用 `shared/metronome/metronome.js`；不使用共享时序引擎的旧项目也必须复用共享面板 UI。离线分发版本可内置这三份共享文件的副本并保持同源，但普通项目或共享模块改动不得默认同步到小工具；只有用户明确将对应小工具纳入本次修改范围时才更新其副本，否则仅在必要时记录待同步事项。
 - 页面 CSS 不得定义 `.rhythm-panel`、`.rhythm-primary`、`.control-group`、`.control-grid`、`.beat-*`、`.rhythm-readout`、`.transport-*`、`.volume-*` 或 `.offbeat-control`；面板容器、内部结构与移动端断点全部由共享 `metronome-panel.css` 控制。页面差异只能通过 `--metronome-*` 变量表达。
 - 除小红书小工具等明确要求离线分发的版本外，仓库中的项目都按正常互联网 Web 项目处理：需要第三方库、字体、图标或其他公开资源时应正常声明并引用，不要为了离线兼容而复制、内联或自行重写。离线分发版本不得依赖网络资源，所需依赖必须随包内置或内联，并与在线版本保持同源。界面图标统一从 [Lucide](https://lucide.dev/icons/) 选用；节拍运输控件使用 `play`、`pause` 和 `rotate-ccw`。
 - 新建或修改小红书小工具时必须遵守根目录 [`MINITOOL.md`](./MINITOOL.md)；小工具的离线结构、端能力、前后摄像头切换、操作优先级、上下容器避让、JSBridge 与打包规则只在该文档集中维护，其他文档只链接，不复制通用规则。
